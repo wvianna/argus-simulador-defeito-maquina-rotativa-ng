@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16
+    container_name: argus-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-argus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-argus}
+      POSTGRES_DB: ${POSTGRES_DB:-argus}
+    # Sem mapeamento de porta no host por padrão: o back-end acessa via rede interna
+    # (db:5432). Descomente abaixo se quiser acessar o Postgres a partir do host.
+    # ports:
+    #   - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - argus_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-argus} -d ${POSTGRES_DB:-argus}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: argus-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-argus}:${POSTGRES_PASSWORD:-argus}@db:5432/${POSTGRES_DB:-argus}
+      ARGUS_DESVIO_ROTACAO: ${ARGUS_DESVIO_ROTACAO:-5.0}
+      ARGUS_DELTA_FREQUENCIA_HZ: ${ARGUS_DELTA_FREQUENCIA_HZ:-0.5}
+      ARGUS_DELTA_AMPLITUDE: ${ARGUS_DELTA_AMPLITUDE:-0.1}
+      ARGUS_DELTA_FASE_GRAUS: ${ARGUS_DELTA_FASE_GRAUS:-15.0}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: argus-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  argus_pgdata:

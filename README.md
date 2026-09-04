@@ -2,7 +2,7 @@
 
 Simulador de sinais vibracionais sintéticos de máquinas rotativas, usado para testar algoritmos de persistência seletiva (FFT + descarte por similaridade) e para gerar dados de treinamento para análise de causa raiz (RCA) de defeitos mecânicos.
 
-> Estado do projeto: especificação e design concluídos, implementação ainda não iniciada. Veja [STATUS.md](STATUS.md) para o estado atual e [HANDOFF.md](HANDOFF.md) para continuidade entre agentes.
+> Estado do projeto: especificação, design e implementação do MVP concluídos (validação `LOCAL` aprovada — ver [STATUS.md](STATUS.md)).
 
 ## Objetivo
 
@@ -29,22 +29,54 @@ Justificativa e alternativas consideradas: [.specs/codebase/STACK.md](.specs/cod
 - Docker e Docker Compose instalados.
 - Para desenvolvimento sem contêiner: Python 3.12+ e Node.js 20+.
 
-## Como executar (ambiente local)
-
-> O código de aplicação ainda não foi implementado (ver [STATUS.md](STATUS.md)). Os comandos abaixo refletem o fluxo alvo definido em [.specs/features/simulador-vibracao/design.md](.specs/features/simulador-vibracao/design.md) e devem ser confirmados assim que o `docker-compose.yml` e os projetos de back-end/front-end existirem.
+## Como executar (ambiente local via Docker Compose)
 
 ```bash
-# Subir back-end, front-end e banco de dados
+# Subir banco de dados, back-end e front-end (o back-end roda as migrações no start)
 docker compose up --build
 
-# Rodar migrações do banco de dados (dentro do contêiner do back-end)
-docker compose exec backend alembic upgrade head
+# Painel web: http://localhost:5173  |  API: http://localhost:8000  |  Docs OpenAPI: http://localhost:8000/docs
+```
 
-# Rodar testes de back-end
-docker compose exec backend pytest
+> Para usar o painel é necessário existir um Ponto na hierarquia Planta > Área > Máquina > Ponto (a API não expõe endpoint de cadastro no MVP). Crie um ponto de exemplo no banco:
+>
+> ```bash
+> docker compose exec db psql -U argus -d argus -c \
+>   "WITH p AS (INSERT INTO plantas(id,nome) VALUES (gen_random_uuid(),'Planta Demo') RETURNING id), \
+>          a AS (INSERT INTO areas(id,planta_id,nome) SELECT gen_random_uuid(), id, 'Área Demo' FROM p RETURNING id), \
+>          m AS (INSERT INTO maquinas(id,area_id,nome) SELECT gen_random_uuid(), id, 'Máquina Demo' FROM a RETURNING id) \
+>   INSERT INTO pontos(id,maquina_id,nome) SELECT gen_random_uuid(), id, 'Ponto Demo' FROM m RETURNING id;"
+> ```
 
-# Rodar testes de front-end
-docker compose exec frontend npm test
+### Desenvolvimento sem contêiner
+
+```bash
+# Back-end (na raiz de backend/)
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+alembic upgrade head              # aplica migrações
+uvicorn app.main:app --reload     # http://localhost:8000
+
+# Front-end (na raiz de frontend/, o Vite faz proxy de /api -> localhost:8000)
+npm install
+npm run dev                       # http://localhost:5173
+```
+
+### Testes
+
+```bash
+# Back-end (na raiz de backend/, com .venv ativo)
+ruff check app tests && mypy app && python -m pytest        # 49 testes (unit + integração + contrato)
+
+# Front-end (na raiz de frontend/)
+npx tsc -b && npx oxlint && npx vitest run                 # 9 testes
+```
+
+### Parar o ambiente
+
+```bash
+docker compose down            # remove os contêineres (mantém o volume do banco)
+docker compose down -v         # remove também o volume (apaga os dados)
 ```
 
 ## Estrutura de diretórios
@@ -56,8 +88,10 @@ docker compose exec frontend npm test
 │   ├── project/                  # Constituição e roadmap do projeto
 │   ├── codebase/                 # Stack, arquitetura, convenções e testes
 │   └── features/simulador-vibracao/  # design.md, tasks.md e context.md do MVP
-├── backend/                      # A CONFIRMAR — API FastAPI (ainda não criado)
-├── frontend/                     # A CONFIRMAR — SPA React (ainda não criado)
+├── backend/                    # API FastAPI (domain, persistence, api, alembic, tests)
+├── frontend/                   # SPA React + Vite + Recharts (componentes e testes)
+├── docker-compose.yml          # serviços db (Postgres 16), backend, frontend (nginx)
+├── .env.example                # referência de variáveis de ambiente
 ├── SPECIFICATION.md              # Especificação funcional e técnica do sistema
 ├── AGENTS.md                     # Regras permanentes para agentes que alterarem este repositório
 ├── STATUS.md                     # Estado atual do desenvolvimento

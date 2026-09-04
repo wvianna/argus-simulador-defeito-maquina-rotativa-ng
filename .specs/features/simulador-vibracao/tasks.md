@@ -2,17 +2,37 @@
 
 > Tarefas ordenadas por risco e dependência: contrato/schema → lógica pura → persistência → API → front-end → observabilidade. Cada tarefa deve ser pequena o bastante para revisão isolada (Princípio da constituição, seção 7). Estados: `[ ]` pendente, `[-]` em andamento, `[x]` concluída, `[!]` bloqueada.
 
-- [ ] T-001 Bootstrap do back-end e schema de banco de dados
-- [ ] T-002 Módulo `signal_generator`
-- [ ] T-003 Módulo `fft_processor`
-- [ ] T-004 Módulo `discard_engine` (regra de ouro + Paralelepípedo de Descarte)
-- [ ] T-005 Camada `persistence` (leituras, trash, hierarquia)
-- [ ] T-006 Endpoint `POST /simulacoes`
-- [ ] T-007 Endpoint `POST /snapshots`
-- [ ] T-008 Bootstrap do front-end e checklist de validação
-- [ ] T-009 Painel visual (sinal + RMS) e gráfico de FFT
-- [ ] T-010 Ação de snapshot de defeito + indicadores de tempo/taxa de descarte no front-end
-- [ ] T-011 Observabilidade (logs estruturados + métrica de taxa de descarte)
+- [x] T-001 Bootstrap do back-end e schema de banco de dados
+- [x] T-002 Módulo `signal_generator`
+- [x] T-003 Módulo `fft_processor`
+- [x] T-004 Módulo `discard_engine` (regra de ouro + Paralelepípedo de Descarte)
+- [x] T-005 Camada `persistence` (leituras, trash, hierarquia)
+- [x] T-006 Endpoint `POST /simulacoes`
+- [x] T-007 Endpoint `POST /snapshots`
+- [x] T-008 Bootstrap do front-end e checklist de validação
+- [x] T-009 Painel visual (sinal + RMS) e gráfico de FFT
+- [x] T-010 Ação de snapshot de defeito + indicadores de tempo/taxa de descarte no front-end
+- [x] T-011 Observabilidade (logs estruturados + métrica de taxa de descarte)
+
+> **Status de implementação (2026-09-04):** todas as tarefas do MVP foram implementadas e o gate mínimo foi executado com sucesso (`PASS`). Evidência por camada abaixo.
+
+| Tarefa | Gate executado | Resultado |
+|---|---|---|
+| T-001 | `alembic upgrade head` em Postgres 16 + `tests/integration/test_schema.py` | PASS (8 tabelas criadas) |
+| T-002 | `pytest tests/unit/test_signal_generator.py` | PASS |
+| T-003 | `pytest tests/unit/test_fft_processor.py` | PASS |
+| T-004 | `pytest tests/unit/test_discard_engine.py` | PASS (casos obrigatórios de TESTING.md cobertos) |
+| T-005 | `pytest tests/integration/test_persistence.py` | PASS |
+| T-006 | `pytest tests/contract/test_simulacoes_api.py` | PASS |
+| T-007 | `pytest tests/contract/test_snapshots_api.py` | PASS |
+| T-008 | `npx tsc -b && npx oxlint && npx vitest run` (ChecklistValidacao) | PASS |
+| T-009 | Vitest (PainelSinal, GraficoFFT) | PASS |
+| T-010 | Vitest (SnapshotDefeito, IndicadoresSimulacao) | PASS |
+| T-011 | `pytest tests/unit/test_observability.py` | PASS |
+
+- Suíte completa de back-end: `ruff check` + `mypy` + `pytest` → **48 passed**.
+- Suíte completa de front-end: `tsc -b` + `oxlint` + `vitest run` → **9 passed**.
+- Nível de evidência: `LOCAL` (CI não configurado — `A CONFIRMAR`).
 
 ---
 
