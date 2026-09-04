@@ -203,7 +203,7 @@ docker compose down -v         # remove também o volume (apaga os dados)
 
 ```text
 .
-├── docs/                         # Documentos de origem + capturas do dashboard (docs/imagens/)
+├── docs/                         # Documentos de origem + imagens (docs/image/) e vídeos (docs/videos/)
 ├── .specs/                       # Especificação técnica detalhada (SDD)
 │   ├── project/                  # Constituição e roadmap do projeto
 │   ├── codebase/                 # Stack, arquitetura, convenções e testes
@@ -220,37 +220,43 @@ docker compose down -v         # remove também o volume (apaga os dados)
 
 ## Capturas de tela (dashboard)
 
-Painel web do simulador (imagens em `docs/imagens/`).
+Painel web do simulador (imagens em `docs/image/`).
 
 Formulário de simulação (configura parâmetros e envia para a API):
 
-![Dashboard — formulário de simulação](docs/imagens/dashboard-formulario.png)
+![Dashboard — formulário de simulação](docs/image/dashboard-formulario.png)
 
 ### Exemplos de assinaturas espectrais
 
 Desbalanceamento estático — 1X dominante + harmônicos pares
 
-![Desbalanceamento — 1X dominante](docs/imagens/dashboard_desbalanceamento.png)
+![Desbalanceamento — 1X dominante](docs/image/dashboard_desbalanceamento.png)
 
 Desalinhamento angular — 2X dominante + harmônicos pares
 
-![Desalinhamento angular](docs/imagens/dashboard_desalinhamento_angular.png)
+![Desalinhamento angular](docs/image/dashboard_desalinhamento_angular.png)
 
 Desalinhamento paralelo — 2X dominante + harmônicos pares
 
-![Desalinhamento paralelo — 2X dominante + harmônicos pares](docs/imagens/dashboard_desalinhamento_paralelo.png)
+![Desalinhamento paralelo — 2X dominante + harmônicos pares](docs/image/dashboard_desalinhamento_paralelo.png)
 
 Instabilidade do filme de óleo (oil whip) — 1X dominante + harmônicos ímpares
 
-![Instabilidade do filme de óleo (oil whirl)](docs/imagens/dashboard_instabilidade_fime_oleo.png)
+![Instabilidade do filme de óleo (oil whirl)](docs/image/dashboard_instabilidade_fime_oleo.png)
 
 Mancal frouxo — família de harmônicos (BPFI, BPFO, BSF, FTF)
 
-![Mancal frouxo — família de harmônicos](docs/imagens/dashboard_mancal_frouxo.png)
+![Mancal frouxo — família de harmônicos](docs/image/dashboard_mancal_frouxo.png)
 
+![Dashboard — resultado completo: sinal, espectro FFT (rolamento BPFI) e telemetria](docs/image/dashboard-simulacao.png)
 
+## Vídeo de demonstração
 
-![Dashboard — resultado completo: sinal, espectro FFT (rolamento BPFI) e telemetria](docs/imagens/dashboard-simulacao.png)
+Gravação rápida demonstrando o simulador em funcionamento:
+
+<video src="docs/videos/video_whatsapp.mp4" controls="controls" style="max-width:100%"></video>
+
+> Se o player acima não carregar, baixe o arquivo: [video_whatsapp.mp4](docs/videos/video_whatsapp.mp4).
 
 ## Documentação técnica
 
