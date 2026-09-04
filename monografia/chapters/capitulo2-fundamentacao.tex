@@ -66,7 +66,7 @@ Velocidade   & in/s / mm/s  & Peak   & Severidade global; falhas mecânicas (1X,
 Aceleração   & g's / m/s²   & RMS    & Altas frequências; rolamentos; engrenamento; cavitação \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: diretrizes técnicas do projeto (docs/descricao.txt).}
+\par\vspace{2pt}{\footnotesize Fonte: diretrizes técnicas do projeto (docs/descricao.txt).}
 \end{table}
 
 \section{Aquisição de sinais de vibração}
@@ -125,7 +125,7 @@ Flat Top  & Obrigatória para testes de aceitação e calibração & Prioriza a 
 Rectangular & Restrita a sinais transientes que iniciam e terminam no registro & Eficaz apenas se o registro contém o transiente completo \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: diretrizes técnicas do projeto (docs/descricao.txt).}
+\par\vspace{2pt}{\footnotesize Fonte: diretrizes técnicas do projeto (docs/descricao.txt).}
 \end{table}
 
 \section{Transformada de Fourier e análise espectral}
@@ -212,7 +212,7 @@ rolamento\_bsf & BSF + harmônicos \\
 rolamento\_ftf & FTF + harmônicos \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: SPECIFICATION.md do projeto; docs/assinaturas\_fft\_falhas\_maquinas\_rotativas\_IA.md.}
+\par\vspace{2pt}{\footnotesize Fonte: SPECIFICATION.md do projeto; docs/assinaturas\_fft\_falhas\_maquinas\_rotativas\_IA.md.}
 \end{table}
 
 \subsection{Defeitos síncronos e harmônicos}
@@ -225,7 +225,7 @@ predominância de \(1X\) e \(2X\) na direção axial, com defasagem de \(180^\ci
 através do acoplamento; o desalinhamento paralelo manifesta-se pela dominância
 de \(2X\) na direção radial, com harmônicos pares superiores em casos severos.
 \emph{Folgas mecânicas} (looseness) do tipo estrutural elevam \(1X\) vertical,
-enquanto folgas móveis ou de mancal geram uma ``floresta'' de harmônicos
+enquanto folgas móveis ou de mancal geram uma \texttt{}floresta'' de harmônicos
 síncronos de \(1X\) até \(10X\). O \emph{roçamento} de rotor (rub) produz um
 espectro rico em harmônicos e, distintamente, sub-harmônicos (\(1/2X\), \(1/3X\)),
 com elevação do piso de ruído causada pelo truncamento da forma de onda
@@ -236,7 +236,7 @@ com elevação do piso de ruído causada pelo truncamento da forma de onda
 Em mancais de deslizamento, a instabilidade de \emph{oil whirl} manifesta-se
 por uma componente subsíncrona na faixa de aproximadamente \(0{,}40X\) a
 \(0{,}49X\) da rotação, com órbita circular. Quando a frequência de whirl
-coincide com uma frequência natural do sistema e ``trava'' nela, ocorre o
+coincide com uma frequência natural do sistema e \texttt{}trava'' nela, ocorre o
 \emph{oil whip}, uma ressonância autoexcitada de caráter catastrófico
 \cite{randall2011}. No catálogo do ARGUS, o \emph{oil whirl} é sintetizado com
 razão amostrada uniformemente em \(0{,}39X\)--\(0{,}48X\) e o \emph{whirl por

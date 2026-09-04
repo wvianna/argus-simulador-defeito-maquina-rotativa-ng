@@ -7,7 +7,7 @@
 Este capítulo descreve a arquitetura e a implementação do ARGUS, relacionando
 cada módulo aos requisitos que implementa. A descrição é fiel ao código
 efetivamente produzido e testado, cujos artefatos principais residem em
-`backend/` e `frontend/`.
+\texttt{backend/} e \texttt{frontend/}.
 
 \section{Visão geral da arquitetura}
 
@@ -21,11 +21,11 @@ m\'odulos e os fluxos principais.
 \input{diagrams/arquitetura}
 \caption{Arquitetura do ARGUS: front-end (React), back-end (FastAPI) e banco de dados (PostgreSQL), com fluxos de simulação, descarte e persistência.}
 \label{fig:arquitetura}
-\caption*{\footnotesize Fonte: elaboração própria, com base na arquitetura real do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: elaboração própria, com base na arquitetura real do projeto.}
 \end{figure}
 
 O fluxo nominal de uma simulação é: (i) a interface envia os parâmetros a
-`POST /simulacoes`; (ii) o back-end valida a entrada (incluindo o critério de
+\texttt{POST /simulacoes}; (ii) o back-end valida a entrada (incluindo o critério de
 Nyquist), gera o sinal, calcula a FFT e extrai os picos \(R^3\) e as métricas;
 (iii) o motor de descarte decide entre persistir e descartar com base na
 última leitura persistida do ponto; (iv) a resposta retorna sinal decimado,
@@ -38,7 +38,7 @@ de estados por leitura.
 \input{diagrams/fluxo-descarte}
 \caption{Fluxo de decisão do motor de descarte: regra de ouro e Paralelepípedo de Descarte \(R^3\).}
 \label{fig:fluxo-descarte}
-\caption*{\footnotesize Fonte: elaboração própria, conforme `discard_engine.py`.}
+\par\vspace{2pt}{\footnotesize Fonte: elaboração própria, conforme \texttt{discard\_engine.py}.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -46,13 +46,13 @@ de estados por leitura.
 \input{diagrams/estados}
 \caption{Máquina de estados do processamento de uma leitura simulada.}
 \label{fig:estados}
-\caption*{\footnotesize Fonte: elaboração própria, conforme arquitetura do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: elaboração própria, conforme arquitetura do projeto.}
 \end{figure}
 
 \section{Requisitos e rastreabilidade}
 
 A especificação formaliza 19 requisitos funcionais (FR-001 a FR-019) e 7 não
-funcionais (NFR-001 a NFR-007), detalhados em `SPECIFICATION.md`. A
+funcionais (NFR-001 a NFR-007), detalhados em \texttt{SPECIFICATION.md}. A
 Tabela~\ref{tab:requisitos} agrupa os requisitos por módulo de implementação.
 
 \begin{table}[htbp]
@@ -63,20 +63,20 @@ Tabela~\ref{tab:requisitos} agrupa os requisitos por módulo de implementação.
 \toprule
 \textbf{Módulo} & \textbf{Requisitos associados} \\
 \midrule
-`signal_generator` & FR-001, FR-002, FR-003 \\
-`fft_processor` & FR-004, FR-005, FR-006, FR-019, NFR-001 \\
-`discard_engine` & FR-007, FR-008, FR-009, FR-010, FR-011 \\
-`persistence` & FR-011, FR-012, FR-013, NFR-003, NFR-004 \\
-`api` & FR-016, FR-017, FR-018, NFR-002 \\
-`frontend` & FR-014, FR-015, FR-016, FR-017, FR-018, FR-019 \\
+\texttt{signal\_generator} & FR-001, FR-002, FR-003 \\
+\texttt{fft\_processor} & FR-004, FR-005, FR-006, FR-019, NFR-001 \\
+\texttt{discard\_engine} & FR-007, FR-008, FR-009, FR-010, FR-011 \\
+\texttt{persistence} & FR-011, FR-012, FR-013, NFR-003, NFR-004 \\
+\texttt{api} & FR-016, FR-017, FR-018, NFR-002 \\
+\texttt{frontend} & FR-014, FR-015, FR-016, FR-017, FR-018, FR-019 \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: SPECIFICATION.md do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: SPECIFICATION.md do projeto.}
 \end{table}
 
 \section{Geração de sinais sintéticos}
 
-O módulo `signal_generator` implementa a síntese no domínio do tempo. Para cada
+O módulo \texttt{signal\_generator} implementa a síntese no domínio do tempo. Para cada
 defeito do catálogo, um conjunto de \emph{componentes espectrais} define a
 ordem (múltiplo de \(f_r\)), o peso relativo e, quando aplicável, a geração de
 bandas laterais em \(\pm 1X\). O sinal é composto pela soma de senoides
@@ -107,7 +107,7 @@ acoplamento\_defeituoso & 1X (0,55); 2X (0,75); 3X (0,30); 4X (0,15) \\
 rolamento\_bpfi & BPFI (1,00); 2$\times$BPFI (0,40); 3$\times$BPFI (0,20) $\pm$ sidebands 1X \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: `DEFECT_PROFILES` e `_componentes_do_defeito` em `backend/app/domain/signal_generator.py`.}
+\par\vspace{2pt}{\footnotesize Fonte: \texttt{DEFECT\_PROFILES} e \texttt{\_componentes\_do\_defeito} em \texttt{backend/app/domain/signal\_generator.py}.}
 \end{table}
 
 Duas decisões de engenharia são relevantes. A primeira é a \emph{derivação da
@@ -121,7 +121,7 @@ comparáveis em fase --- condição necessária para a verificação \(R^3\) ---
 enquanto o ruído permanece estocástico. O trecho a seguir ilustra o núcleo da
 síntese:
 
-\begin{lstlisting}[language=Python, caption={Núcleo da síntese de sinal em signal_generator.py.}, label={lst:gen}]
+\begin{verbatim}
 for componente in _componentes_do_defeito(tipo_defeito, severidade, rng_fase):
     freq = componente.ordem * freq_rotacao_hz      # ordem x (RPM/60)
     amplitude = componente.peso * severidade
@@ -132,7 +132,8 @@ for componente in _componentes_do_defeito(tipo_defeito, severidade, rng_fase):
             if f_lat > 0:
                 sinal += 0.2*amplitude * np.sin(2*pi*f_lat*t + fase_lat)
 sinal += rng_ruido.normal(0, ruido_efetivo, n)
-\end{lstlisting}
+\end{verbatim}
+
 
 Para os defeitos com razão subsíncrona dinâmica (\emph{oil whirl} e \emph{whirl
 por atrito}), a razão é amostrada em tempo de geração dentro de uma faixa
@@ -145,7 +146,7 @@ sub-harmônicos e fracionários são adicionados, e o piso de ruído é elevado
 
 \section{Processamento espectral (FFT)}
 
-O módulo `fft_processor` calcula a FFT real (via `numpy.fft.rfft`), extrai os
+O módulo \texttt{fft\_processor} calcula a FFT real (via \texttt{numpy.fft.rfft}), extrai os
 picos e as métricas. A estimativa de \(F_{max}\) de cada defeito é feita pela
 maior ordem do perfil (com piso de ordem 10) multiplicada por uma margem de
 bandas laterais de \(2{,}0\):
@@ -170,19 +171,20 @@ decimado para a visualização.
 
 \section{Motor de descarte}
 
-O módulo `discard_engine` implementa a regra de ouro e o Paralelepípedo de
+O módulo \texttt{discard\_engine} implementa a regra de ouro e o Paralelepípedo de
 Descarte (Equações~\eqref{eq:regra-ouro} e~\eqref{eq:descarte} do
 Capítulo~\ref{cap:fundamentacao}). Sua interface recebe a leitura atual, a
-última leitura efetivamente persistida do ponto (ou `None` na primeira) e as
+última leitura efetivamente persistida do ponto (ou \texttt{None} na primeira) e as
 tolerâncias configuráveis (desvio de rotação, \(\delta_f\), \(\delta_A\) e
 \(\delta_\phi\)). O resultado é uma decisão enumerada:
 
-\begin{lstlisting}[language=Python, caption={Decisões possíveis do motor de descarte.}, label={lst:decisoes}]
+\begin{verbatim}
 PERSISTIR_PRIMEIRA_LEITURA   # nao ha referencia (FR-011)
 PERSISTIR_REGRA_DE_OURO      # |dRPM| > desvio e ha picos (FR-007)
 PERSISTIR_FORA_TOLERANCIA    # algum pico fora do R^3 (FR-010)
 DESCARTAR                    # todos os picos dentro do R^3 (FR-009)
-\end{lstlisting}
+\end{verbatim}
+
 
 A comparação de cada pico atual é feita contra o pico de referência mais
 próximo em frequência; se não houver pico de referência ou se qualquer desvio
@@ -194,11 +196,11 @@ a nova leitura.
 
 \section{Persistência e modelo de dados}
 
-A camada `persistence` utiliza SQLAlchemy 2.x assíncrono e segue a hierarquia
+A camada \texttt{persistence} utiliza SQLAlchemy 2.x assíncrono e segue a hierarquia
 Planta~$\rightarrow$~Área~$\rightarrow$~Máquina~$\rightarrow$~Ponto. O schema
 lógico (Tabela~\ref{tab:schema}) materializa a arquitetura não normalizada
 adotada (NFR-003): os picos \(R^3\) de cada leitura são armazenados como um
-documento JSON em coluna `JSONB`, priorizando a velocidade de ingestão em
+documento JSON em coluna \texttt{JSONB}, priorizando a velocidade de ingestão em
 relação à conveniência de consulta, conforme as diretrizes de origem.
 
 \begin{table}[htbp]
@@ -210,22 +212,22 @@ relação à conveniência de consulta, conforme as diretrizes de origem.
 \textbf{Relação} & \textbf{Conteúdo principal} \\
 \midrule
 plantas / areas / maquinas & hierarquia com chaves estrangeiras \\
-pontos & nó de medição; `ultima\_leitura\_persistida\_id` (ponteiro crítico) \\
+pontos & nó de medição; \texttt{ultima\_leitura\_persistida\_id} (ponteiro crítico) \\
 leituras\_persistidas & picos\_r3 (JSONB), rms\_total/ruido/picos, valor\_dc, rotacao, níveis, timestamp \\
-leituras\_trash & leitura descartada + `motivo\_descarte` \\
+leituras\_trash & leitura descartada + \texttt{motivo\_descarte} \\
 snapshots\_defeito & par sensor + tipo de defeito + vínculo com a leitura \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: `.specs/codebase/ARCHITECTURE.md` e migração Alembic do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: \texttt{.specs/codebase/ARCHITECTURE.md} e migração Alembic do projeto.}
 \end{table}
 
 A primeira migração Alembic cria as oito relações da
 Tabela~\ref{tab:schema}. O estado compartilhado crítico é o ponteiro
-`pontos.ultima\_leitura\_persistida\_id`: a decisão de descarte lê esse ponteiro
+\texttt{pontos.ultima\_leitura\_persistida\_id}: a decisão de descarte lê esse ponteiro
 e grava a nova leitura na \emph{mesma transação}, com lock de linha, evitando
 corridas entre simulações concorrentes do mesmo ponto. Leituras aprovadas são
-escritas em `leituras_persistidas` e atualizam o ponteiro; leituras descartadas
-vão para `leituras_trash`, sem alterar a referência.
+escritas em \texttt{leituras\_persistidas} e atualizam o ponteiro; leituras descartadas
+vão para \texttt{leituras\_trash}, sem alterar a referência.
 
 \section{API REST}
 
@@ -246,22 +248,22 @@ POST /snapshots & registra par sensor+defeito & FR-016 \\
 GET /health & verificação de saúde do serviço & --- \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: `backend/app/api/` do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: \texttt{backend/app/api/} do projeto.}
 \end{table}
 
-A resposta de `POST /simulacoes` contém `sinal_tempo` (decimado), `picos_r3`,
-`rms_total`, `rms_ruido`, `rms_picos`, `valor_dc`, `rotacao`, `limiar_picos` e
-`limiar_amplitude`, a decisão (`descartada` e `motivo_descarte`),
-`tempo_processamento_ms` e `taxa_descarte_acumulada`. Erros são mapeados como
-`422` (entrada inválida ou violação de Nyquist), `404` (ponto inexistente) e
-`500` (falha interna de persistência, sem corromper o ponteiro de referência).
+A resposta de \texttt{POST /simulacoes} contém \texttt{sinal\_tempo} (decimado), \texttt{picos\_r3},
+\texttt{rms\_total}, \texttt{rms\_ruido}, \texttt{rms\_picos}, \texttt{valor\_dc}, \texttt{rotacao}, \texttt{limiar\_picos} e
+\texttt{limiar\_amplitude}, a decisão (\texttt{descartada} e \texttt{motivo\_descarte}),
+\texttt{tempo\_processamento\_ms} e \texttt{taxa\_descarte\_acumulada}. Erros são mapeados como
+\texttt{422} (entrada inválida ou violação de Nyquist), \texttt{404} (ponto inexistente) e
+\texttt{500} (falha interna de persistência, sem corromper o ponteiro de referência).
 
 \section{Front-end}
 
 O front-end é uma SPA em React com gráficos Recharts, organizada em
-componentes: `PainelSimulacao` (formulário), `PainelSinal` (sinal e RMS),
-`GraficoFFT` (barras de espectro), `IndicadoresSimulacao` (tempo e taxa de
-descarte), `ChecklistValidacao`, `SnapshotDefeito` e o componente `Help`
+componentes: \texttt{PainelSimulacao} (formulário), \texttt{PainelSinal} (sinal e RMS),
+\texttt{GraficoFFT} (barras de espectro), \texttt{IndicadoresSimulacao} (tempo e taxa de
+descarte), \texttt{ChecklistValidacao}, \texttt{SnapshotDefeito} e o componente \texttt{Help}
 (tooltips de ajuda). O formulário reúne os parâmetros de máquina e de
 aquisição, incluindo um controle de limiar relativo de picos; a validação no
 cliente espelha o critério de Nyquist e bloqueia a submissão de parâmetros
@@ -271,18 +273,18 @@ O gráfico de FFT exibe cada barra com a frequência em hertz e a ordem
 normalizada \(N\) (frequência dividida pela rotação em hertz), uma linha
 horizontal com o limiar absoluto e, abaixo do gráfico, o valor da rotação em
 hertz (FR-015). O registro de \emph{snapshot} associa o sensor ao tipo de
-defeito simulado e persiste via `POST /snapshots` (FR-016). O client HTTP
+defeito simulado e persiste via \texttt{POST /snapshots} (FR-016). O client HTTP
 tipado trata erros de rede e erros de API de forma explícita, exibindo
 mensagens compreensíveis ao usuário.
 
 \section{Infraestrutura e execução}
 
 O ambiente de execução local é definido por Docker Compose com três serviços:
-`db` (PostgreSQL 16 com volume persistente), `backend` (imagem Python que executa
-`alembic upgrade head` e inicia o Uvicorn na porta 8000) e `frontend` (build de
-produção servido por nginx na porta 80, com proxy de `/api/` para o back-end).
-Os scripts `start.sh` e `stop.sh` automatizam, respectivamente, o setup (checagem
-do Docker, cópia do `.env`, build de imagem se ausente, subida com espera de
+\texttt{db} (PostgreSQL 16 com volume persistente), \texttt{backend} (imagem Python que executa
+\texttt{alembic upgrade head} e inicia o Uvicorn na porta 8000) e \texttt{frontend} (build de
+produção servido por nginx na porta 80, com proxy de \texttt{/api/} para o back-end).
+Os scripts \texttt{start.sh} e \texttt{stop.sh} automatizam, respectivamente, o setup (checagem
+do Docker, cópia do \texttt{.env}, build de imagem se ausente, subida com espera de
 health e semeadura de um ponto de demonstração) e a derrubada do ambiente
 (inclusive com remoção opcional de volumes).
 

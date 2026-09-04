@@ -6,12 +6,12 @@
 
 Este apêndice detalha os contratos de operação da API, conforme o design do
 projeto. Os valores numéricos são ilustrativos do formato (extraídos do
-`design.md`); valores observados em execução real constam do
+\texttt{design.md}); valores observados em execução real constam do
 Capítulo~\ref{cap:experimentos} e do Apêndice~\ref{ap:execucao}.
 
 \section{POST /simulacoes --- requisição}
 
-\begin{lstlisting}[caption={Corpo da requisição de POST /simulacoes.}]
+\begin{verbatim}
 {
   "ponto_id": "uuid-do-ponto",
   "rpm": 1780,
@@ -22,14 +22,15 @@ Capítulo~\ref{cap:experimentos} e do Apêndice~\ref{ap:execucao}.
   "numero_amostras": 4096,
   "limiar_picos": 0.05
 }
-\end{lstlisting}
+\end{verbatim}
 
-O campo `tipo_defeito` deve pertencer ao catálogo de treze defeitos
+
+O campo \texttt{tipo\_defeito} deve pertencer ao catálogo de treze defeitos
 (Seção~\ref{cap:fundamentacao}, Tabela~\ref{tab:catalogo}).
 
 \section{POST /simulacoes --- resposta}
 
-\begin{lstlisting}[caption={Formato da resposta de POST /simulacoes.}]
+\begin{verbatim}
 {
   "leitura_id": "uuid",
   "sinal_tempo": [ ... ],        // decimado para o painel
@@ -46,20 +47,21 @@ O campo `tipo_defeito` deve pertencer ao catálogo de treze defeitos
   "tempo_processamento_ms": 42,
   "taxa_descarte_acumulada": 0.73
 }
-\end{lstlisting}
+\end{verbatim}
+
 
 \section{POST /snapshots}
 
-Requisição: `{ "leitura_id": "uuid", "sensor_id": "string", "tipo_defeito":
-"desbalanceamento" }`. Resposta `201`: `{ "snapshot_id": "uuid", "criado_em":
-"..." }`.
+Requisição: \texttt{{ \textquotedbl leitura\_id\textquotedbl : \textquotedbl uuid\textquotedbl , \textquotedbl sensor\_id\textquotedbl : \textquotedbl string\textquotedbl , \textquotedbl tipo\_defeito\textquotedbl :
+\textquotedbl desbalanceamento\textquotedbl  }}. Resposta \texttt{201}: \texttt{{ \textquotedbl snapshot\_id\textquotedbl : \textquotedbl uuid\textquotedbl , \textquotedbl criado\_em\textquotedbl :
+\textquotedbl ...\textquotedbl  }}.
 
 \section{Códigos de erro}
 
 \begin{itemize}
   \item \texttt{422}: parâmetro obrigatório ausente/inválido ou violação do
   critério de Nyquist (\(f_s \le 2F_{max}\), NFR-001/CA-011);
-  \item \texttt{404}: `ponto_id` inexistente;
+  \item \texttt{404}: \texttt{ponto\_id} inexistente;
   \item \texttt{500}: falha interna de persistência (a leitura anterior
   permanece como referência válida).
 \end{itemize}

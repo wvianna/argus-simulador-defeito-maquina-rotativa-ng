@@ -32,10 +32,10 @@ contrário. O fluxo executado foi:
   disponíveis como documentos de entrada do projeto.
   \item \textbf{Especificação}: formalização dos requisitos funcionais
   (FR-001 a FR-019), requisitos não funcionais (NFR-001 a NFR-007) e critérios
-  de aceitação (CA-001 a CA-014) em `SPECIFICATION.md`, com matriz de
+  de aceitação (CA-001 a CA-014) em \texttt{SPECIFICATION.md}, com matriz de
   rastreabilidade.
   \item \textbf{Design}: arquitetura, contratos de API, modelo de dados e
-  detalhamento por tarefas pequenas (T-001 a T-013) em `.specs/`.
+  detalhamento por tarefas pequenas (T-001 a T-013) em \texttt{.specs/}.
   \item \textbf{Implementação}: execução das tarefas com gate mínimo de
   lint, type-check e testes por módulo.
   \item \textbf{Validação}: testes unitários, de integração e de contrato, e
@@ -74,7 +74,7 @@ Infra & Docker / Docker Compose & v2 \\
 Execução & Navegador & ensaio E2E em localhost:5173 \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: `frontend/package.json`, `backend/requirements*.txt` e `docker-compose.yml` do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: \texttt{frontend/package.json}, \texttt{backend/requirements*.txt} e \texttt{docker-compose.yml} do projeto.}
 \end{table}
 
 \section{Arquitetura de teste em camadas}
@@ -84,16 +84,16 @@ crescente e escopo decrescente:
 
 \begin{enumerate}
   \item \textbf{Testes unitários} dos módulos puros de domínio
-  (`signal_generator`, `fft_processor`, `discard_engine`), sem acesso a banco
+  (\texttt{signal\_generator}, \texttt{fft\_processor}, \texttt{discard\_engine}), sem acesso a banco
   de dados ou rede. O motor de descarte recebe a última leitura persistida como
   parâmetro injetado, o que permite cobrir todas as combinações da regra de ouro
   e do Paralelepípedo de Descarte sem infraestrutura.
   \item \textbf{Testes de integração} da camada de persistência, executados
-  contra um PostgreSQL real provisório (contêiner via `testcontainers`),
+  contra um PostgreSQL real provisório (contêiner via \texttt{testcontainers}),
   validando migração, transações e o ponteiro de última leitura persistida.
   \item \textbf{Testes de contrato} da API, usando cliente HTTP assíncrono
-  contra a aplicação FastAPI, verificando os contratos de `POST /simulacoes`,
-  `POST /snapshots` e `GET /health`, incluindo validações de entrada e a
+  contra a aplicação FastAPI, verificando os contratos de \texttt{POST /simulacoes},
+  \texttt{POST /snapshots} e \texttt{GET /health}, incluindo validações de entrada e a
   violação de Nyquist.
   \item \textbf{Testes de front-end} (componentes e validação de formulário)
   com Vitest e Testing Library.
@@ -129,7 +129,7 @@ O protocolo efetivamente executado foi o seguinte (distinguindo-se o planejado
 do executado):
 
 \begin{enumerate}
-  \item subir o ambiente completo com `start.sh` (Docker Compose: banco,
+  \item subir o ambiente completo com \texttt{start.sh} (Docker Compose: banco,
   migrações Alembic, back-end e front-end);
   \item semear um ponto de medição de demonstração com identificador fixo;
   \item executar a suíte de testes do back-end (lint + type-check + pytest) e

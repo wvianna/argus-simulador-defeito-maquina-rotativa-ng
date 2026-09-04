@@ -22,12 +22,12 @@ Tabelas~\ref{tab:testes-backend} e~\ref{tab:testes-frontend}.
 \toprule
 \textbf{Ferramenta} & \textbf{Resultado} & \textbf{Observação} \\
 \midrule
-`ruff check` & limpo & lint sem violações \\
-`mypy app` & limpo & type-check sem erros \\
-`pytest -q` & \textbf{63 passed} & unit + integração + contrato \\
+\texttt{ruff check} & limpo & lint sem violações \\
+\texttt{mypy app} & limpo & type-check sem erros \\
+\texttt{pytest -q} & \textbf{63 passed} & unit + integração + contrato \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
 \end{table}
 
 \begin{table}[htbp]
@@ -38,12 +38,12 @@ Tabelas~\ref{tab:testes-backend} e~\ref{tab:testes-frontend}.
 \toprule
 \textbf{Ferramenta} & \textbf{Resultado} & \textbf{Observação} \\
 \midrule
-`tsc -b` & limpo & type-check sem erros \\
-`oxlint` & limpo & lint sem violações \\
-`vitest run` & \textbf{12 passed} & 5 arquivos de teste \\
+\texttt{tsc -b} & limpo & type-check sem erros \\
+\texttt{oxlint} & limpo & lint sem violações \\
+\texttt{vitest run} & \textbf{12 passed} & 5 arquivos de teste \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
+\par\vspace{2pt}{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
 \end{table}
 
 Os testes do back-end cobrem, entre outros: a geração de sinal para cada tipo
@@ -56,7 +56,7 @@ cobrem a validação do formulário e a renderização dos componentes.
 
 \section{Validação das assinaturas espectrais}
 
-A corretude espectral foi verificada por chamadas reais a `POST /simulacoes`,
+A corretude espectral foi verificada por chamadas reais a \texttt{POST /simulacoes},
 observando-se as componentes retornadas para defeitos representativos do
 catálogo. A Tabela~\ref{tab:assinaturas} resume as verificações.
 
@@ -74,7 +74,7 @@ oil\_whirl & componente subsíncrona dominante (razão observada \(\approx 0{,}4
 rolamento\_bpfi & pico em \(\approx 5{,}4N\) (BPFI) com harmônicos (\(2\times\), \(3\times\)) e \emph{sidebands} em \(\pm 1X\) \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: observações registradas nas sessões de validação (STATUS.md/HANDOFF.md) e repetidas nesta execução.}
+\par\vspace{2pt}{\footnotesize Fonte: observações registradas nas sessões de validação (STATUS.md/HANDOFF.md) e repetidas nesta execução.}
 \end{table}
 
 Como exemplo quantitativo, a Tabela~\ref{tab:bpfi-picos} apresenta os picos
@@ -106,13 +106,13 @@ diferenças em relação aos valores teóricos decorrem da resolução espectral
 487,50 & 16,25 & 0,0933 & \(3\times BPFI\) \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: resposta real de `POST /simulacoes` nesta execução.}
+\par\vspace{2pt}{\footnotesize Fonte: resposta real de \texttt{POST /simulacoes} nesta execução.}
 \end{table}
 
 \section{Fluxo de descarte observado via API}
 
 Para verificar o comportamento do motor de descarte, foram executadas três
-chamadas reais ao mesmo ponto de medição com `desbalanceamento`. A
+chamadas reais ao mesmo ponto de medição com \texttt{desbalanceamento}. A
 Tabela~\ref{tab:descarte} resume o resultado observado (o ponto já possuía uma
 leitura persistida em sessão anterior a 1800\,rpm).
 
@@ -129,7 +129,7 @@ leitura persistida em sessão anterior a 1800\,rpm).
 3 & 1810 & persistir & regra de ouro: variação de rotação 30\,rpm $>$ desvio 5\,rpm \\
 \bottomrule
 \end{tabular}
-\caption*{\footnotesize Fonte: respostas reais de `POST /simulacoes` nesta execução; desvio de rotação configurado em 5\,rpm.}
+\par\vspace{2pt}{\footnotesize Fonte: respostas reais de \texttt{POST /simulacoes} nesta execução; desvio de rotação configurado em 5\,rpm.}
 \end{table}
 
 O comportamento observado é coerente com a especificação: a mudança de regime
@@ -146,7 +146,7 @@ O tempo de processamento por simulação, medido na resposta da API, foi da orde
 de \(8\)--\(10\)\,ms nas configurações testadas (4096--8192 amostras a
 25,6\,kHz, ambiente local), com o custo dominado pela FFT e pela síntese do
 sinal. Esses valores são indicativos (FR-017) e não constituem uma bateria
-estatística formal; a meta numérica de latência permanece `A CONFIRMAR`
+estatística formal; a meta numérica de latência permanece \texttt{A CONFIRMAR}
 (NFR-002).
 
 \section{Ensaio de ponta a ponta no navegador}
@@ -165,7 +165,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.86\textwidth]{dashboard-formulario.png}
 \caption{Formulário de simulação do ARGUS (parâmetros e checklist de validação).}
 \label{fig:formulario}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -173,7 +173,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.88\textwidth]{dashboard_desbalanceamento.png}
 \caption{Espectro FFT observado no painel para desbalanceamento (\(1X\) dominante).}
 \label{fig:desbal}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -181,7 +181,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.88\textwidth]{dashboard_desalinhamento_paralelo.png}
 \caption{Espectro FFT observado no painel para desalinhamento paralelo (\(2X\) dominante + harmônicos pares).}
 \label{fig:despar}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -189,7 +189,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.88\textwidth]{dashboard_instabilidade_fime_oleo.png}
 \caption{Espectro FFT observado no painel para instabilidade de filme de óleo (componente subsíncrona).}
 \label{fig:oilwhirl}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -197,7 +197,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.88\textwidth]{dashboard_mancal_frouxo.png}
 \caption{Espectro FFT observado no painel para mancal frouxo (família de harmônicos).}
 \label{fig:frouxo}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -205,7 +205,7 @@ processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
 \includegraphics[width=0.9\textwidth]{dashboard-simulacao.png}
 \caption{Resultado completo de simulação de rolamento BPFI: sinal no tempo, espectro FFT (ordens \(N\)), telemetria e snapshot.}
 \label{fig:resultado}
-\caption*{\footnotesize Fonte: captura real do painel.}
+\par\vspace{2pt}{\footnotesize Fonte: captura real do painel.}
 \end{figure}
 
 O ensaio confirmou a presença e o funcionamento dos elementos visuais exigidos
