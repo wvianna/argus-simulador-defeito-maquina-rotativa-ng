@@ -1,0 +1,82 @@
+% =====================================================================
+%  Capítulo 3 — Trabalhos relacionados
+% =====================================================================
+\chapter{Trabalhos Relacionados}
+\label{cap:trabalhos}
+
+Este capítulo situa o trabalho em relação à literatura e a sistemas correlatos.
+A revisão aqui apresentada é delimitada (não sistemática) e foca nas três
+dimensões do problema: monitoramento de condição por vibração, geração de
+sinais sintéticos e conjuntos de dados para treinamento, e estratégias de
+armazenamento seletivo de dados de vibração.
+
+\section{Monitoramento de condição e análise de vibração}
+
+O monitoramento de condição por vibração é um campo maduro, consolidado em
+normas e em sistemas comerciais. Randall \cite{randall2011} apresenta o estado
+da arte das técnicas de monitoramento baseado em vibração para aplicações
+industriais, aeroespaciais e automotivas, incluindo a análise de envelope para
+falhas incipientes de rolamento e a interpretação de bandas laterais. Scheffer
+e Girdhar \cite{scheffer2004} oferecem uma abordagem prática da análise de
+vibração e da manutenção preditiva, cobrindo o fluxo completo desde a
+aquisição até o diagnóstico e a recomendação de ação. O manual de Harris e
+Piersol \cite{harris2002} é referência clássica para as bases teóricas da
+dinâmica e da instrumentação de vibração.
+
+Sistemas comerciais de monitoramento (provenientes de fornecedores de
+instrumentação e de plataformas de manutenção preditiva) implementam
+funcionalidades semelhantes às deste trabalho --- aquisição, FFT, alarmes e
+tendências ---, porém tipicamente como produtos fechados, acoplados a hardware
+específico de aquisição. O diferencial do ARGUS não está na análise espectral em
+si, mas na combinação de \emph{geração sintética de defeitos} e
+\emph{persistência seletiva} em um sistema aberto, extensível e validado por
+testes, orientado ao treinamento e à pesquisa.
+
+\section{Bases de dados e sinais sintéticos para treinamento}
+
+Para treinamento de analistas e de algoritmos de aprendizagem de máquina, a
+comunidade utiliza tanto bases de dados medidas em bancadas de ensaio quanto
+sinais sintéticos. As bases medidas, ainda que reais, apresentam limitações
+importantes: cobrem um conjunto restrito de máquinas, condições e defeitos;
+exigem a reprodução física da falha (com custo e risco); e a documentação dos
+estágios de severidade nem sempre é completa. Sinais sintéticos, por sua vez,
+permitem gerar grandes volumes rotulados com controle de severidade, de ruído e
+de condição operacional, a custo desprezível e sem risco --- exatamente o
+propósito do gerador desenvolvido neste trabalho. A limitação inerente é que as
+amplitudes sintéticas são parâmetros de síntese e não refletem a dinâmica real
+de uma máquina específica (massas, rigidez, amortecimento, ressonâncias), como
+discutido no Capítulo~\ref{cap:fundamentacao} e retomado no
+Capítulo~\ref{cap:discussao}.
+
+A especificação de assinaturas adotada no projeto segue a literatura de
+diagnóstico para definir quais componentes espectrais (ordens e frequências de
+falha) devem estar presentes em cada defeito, o que confere coerência física aos
+sinais gerados, ainda que as amplitudes sejam relativas.
+
+\section{Persistência seletiva de dados de vibração}
+
+O problema da ``massa de dados'' no monitoramento de condição é reconhecido na
+indústria, e a literatura de manutenção preditiva aponta a necessidade de
+transformar o dado bruto em informação antes do armazenamento
+\cite{scheffer2004}. A abordagem do ARGUS --- representar a leitura por vetores
+de picos \(R^3\) e métricas de energia, e persistir apenas transições de estado
+segundo um Paralelepípedo de Descarte --- segue essa diretriz e a materializa
+em um motor de descarte testável. A comparação contra a última leitura
+\emph{efetivamente persistida} (e não contra a última leitura avaliada) é um
+detalhe de projeto que evita o acúmulo de \emph{drift}, aspecto que distingue a
+implementação de um descarte ingênuo por diferença da leitura anterior.
+
+\section{Lacuna e contribuição deste trabalho}
+
+A partir da revisão delimitada, identifica-se a seguinte lacuna: ferramentas
+abertas que integrem, de forma validada e testável, (i) a geração sintética de
+sinais de vibração com assinaturas espectrais de um catálogo amplo de defeitos,
+(ii) a persistência seletiva segundo o critério \(R^3\) e (iii) uma interface
+web para análise e registro de \emph{snapshots} de defeito. O ARGUS propõe-se a
+preencher essa lacuna como uma plataforma de treinamento e pesquisa, apoiada em
+documentação de requisitos, design e testes que garantem reprodutibilidade.
+
+Uma revisão bibliográfica sistemática e o aprofundamento quantitativo das
+comparações com bases de dados públicas são registrados como pendências do
+trabalho (ver `MONOGRAFIA_PENDENCIAS.md`), devendo ser conduzidos com o
+orientador antes da versão final.

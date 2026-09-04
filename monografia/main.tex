@@ -1,0 +1,152 @@
+% =====================================================================
+%  main.tex — Monografia de Engenharia (draft)
+%  Classe: memoir com formatação ABNT customizada
+%  Compilação: pdflatex + bibtex (documentado em latexmkrc)
+%  Obs.: abntex2 não está disponível no ambiente; usar abntex2 se o
+%        modelo institucional exigir (ver MONOGRAFIA_PENDENCIAS.md).
+% =====================================================================
+\documentclass[12pt,a4paper,oneside,openany]{memoir}
+
+% --- Fontes e codificação ---------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+
+% --- Idioma ------------------------------------------------------------
+\usepackage[brazilian]{babel}
+
+% --- Geometria ABNT: 3 cm sup./esq., 2 cm inf./dir. --------------------
+\setlrmarginsandblock{3cm}{2cm}{*}
+\setulmarginsandblock{3cm}{2cm}{*}
+\checkandfixthelayout
+
+% --- Espaçamento 1,5 e recuo de parágrafo ------------------------------
+\OnehalfSpacing
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+
+% --- Profundidade do sumário -------------------------------------------
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\maxtocdepth{subsection}
+
+% --- Matemática ----------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% --- Figuras, tabelas e cores --------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{rotating}
+
+% --- Código ---------------------------------------------------------------
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0.0,0.42,0.24}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0.0,0.2,0.6}
+\definecolor{codebg}{rgb}{0.96,0.96,0.96}
+\lstdefinestyle{monografia}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{codeblue}\bfseries,
+  stringstyle=\color{codegreen},
+  frame=single,
+  rulecolor=\color{black!25},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  columns=fullflexible,
+  captionpos=b,
+  literate={á}{{\'a}}1 {à}{{\`a}}1 {ã}{{\~a}}1 {é}{{\'e}}1 {ê}{{\^e}}1
+           {í}{{\'i}}1 {ó}{{\'o}}1 {õ}{{\~o}}1 {ú}{{\'u}}1 {ç}{{\c{c}}}1
+           {Ã}{{\~A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {Ç}{{\c{C}}}1
+}
+\lstset{style=monografia}
+
+% --- Diagramas TikZ --------------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,decorations.pathreplacing}
+
+% --- Hiperlinks ---------------------------------------------------------------
+\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={ARGUS - Simulador de defeitos em maquinas rotativas},
+  pdfauthor={William da Silva Vianna},
+  pdfsubject={Monografia de Engenharia},
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black
+}
+
+% --- Notas de rodapé e floats -----------------------------------------------
+\renewcommand{\footnotesize}{\scriptsize}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{6pt}
+\captionnamefont{\bfseries\small}
+\captiontitlefont{\small}
+
+% --- Listas de abreviaturas e símbolos (simples) ----------------------------
+\usepackage{enumitem}
+
+% =====================================================================
+%  PRÉ-TEXTUAIS
+% =====================================================================
+\begin{document}
+
+\frontmatter
+\input{pretextual/00-capa}
+\input{pretextual/01-folharosto}
+\input{pretextual/02-resumo}
+\input{pretextual/03-abstract}
+
+% Listas
+\renewcommand{\listfigurename}{LISTA DE FIGURAS}
+\renewcommand{\listtablename}{LISTA DE TABELAS}
+\renewcommand{\contentsname}{SUM\'ARIO}
+\pdfbookmark[0]{\contentsname}{tof}
+\tableofcontents*
+\clearpage
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\clearpage
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\clearpage
+
+% =====================================================================
+%  TEXTUAIS
+% =====================================================================
+\mainmatter
+
+\input{chapters/capitulo1-introducao}
+\input{chapters/capitulo2-fundamentacao}
+\input{chapters/capitulo3-trabalhos-relacionados}
+\input{chapters/capitulo4-metodologia}
+\input{chapters/capitulo5-desenvolvimento}
+\input{chapters/capitulo6-experimentos-resultados}
+\input{chapters/capitulo7-discussao}
+\input{chapters/capitulo8-conclusao}
+
+% =====================================================================
+%  PÓS-TEXTUAIS
+% =====================================================================
+\backmatter
+\bibliographystyle{plain}
+\bibliography{references}
+
+\appendix
+\input{appendices/apendice-a-contratos}
+\input{appendices/apendice-b-exemplos}
+
+\end{document}

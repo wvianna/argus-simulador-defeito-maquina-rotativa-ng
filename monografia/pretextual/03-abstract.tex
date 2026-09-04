@@ -1,0 +1,39 @@
+% =====================================================================
+%  Abstract
+% =====================================================================
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT}
+
+Predictive maintenance of rotating machinery depends on the continuous
+acquisition of vibration signals whose raw volume, when stored
+indiscriminately, becomes an operational and financial liability. At the same
+time, the training of analysts and of artificial-intelligence algorithms in
+vibration diagnostics requires varied and controlled defect signals, which is
+impractical on real assets. This work presents the design and implementation of
+\textbf{ARGUS}, a fault simulator for rotating machinery that generates synthetic
+vibration signals with a spectral signature parameterized by fault type and
+applies selective persistence of readings based on the \(R^3\) criterion
+(frequency, amplitude and phase), with a golden rule for rotational-speed
+variation and a Discard Parallelepiped to filter redundant readings.
+
+The system comprises a Python/FastAPI backend with signal-generation,
+FFT-spectral-processing, discard-engine and PostgreSQL~16 persistence modules,
+and a React frontend presenting a time-signal panel, an FFT spectrum with
+normalized orders \(N\) and rotation in Hz, processing and discard-rate
+indicators, and fault-snapshot registration. The catalog covers thirteen fault
+types with spectral signatures derived from the vibration-diagnostics
+literature, including unbalance, angular and parallel misalignment, looseness,
+rotor rub, oil-film instabilities and rolling-element bearing faults (BPFO,
+BPFI, BSF and FTF).
+
+Validation was carried out through automated tests (63 backend and 12 frontend
+tests) and an end-to-end browser trial, with verification of the spectral
+signatures produced by the API. The results indicate that the simulator
+reproduces the expected signatures and that the discard engine performs
+selective persistence according to the defined decision hierarchy, enabling the
+creation of training datasets and root-cause-analysis research without exposing
+real assets.
+
+\vspace{0.6cm}
+\noindent\textbf{Keywords:} predictive maintenance; vibration analysis; FFT;
+synthetic signal generation; selective persistence; condition monitoring.

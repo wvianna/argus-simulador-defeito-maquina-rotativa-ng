@@ -1,0 +1,158 @@
+% =====================================================================
+%  Capítulo 4 — Materiais e Métodos
+% =====================================================================
+\chapter{Materiais e Métodos}
+\label{cap:metodologia}
+
+Este capítulo descreve a natureza da pesquisa, o processo de engenharia
+adotado, os materiais e o ambiente utilizados e os critérios de validação,
+permitindo a reprodução ou a avaliação crítica do trabalho. Procura-se
+distinguir claramente o que foi \emph{planejado} (nos artefatos de
+especificação e design) do que foi \emph{executado} (código e resultados).
+
+\section{Natureza e abordagem da pesquisa}
+
+O trabalho caracteriza-se como \textbf{pesquisa aplicada} com componente de
+\textbf{desenvolvimento experimental}: parte de um problema de engenharia real
+(volume de dados e necessidade de sinais de defeito no monitoramento de
+condição) e entrega um artefato funcional --- um simulador --- com validação
+por testes. A abordagem é essencialmente tecnológica e combina três áreas:
+engenharia de software, processamento digital de sinais e engenharia de
+confiabilidade (manutenção preditiva).
+
+\section{Processo de engenharia: especificação dirigida}
+
+O desenvolvimento seguiu o processo de \emph{Spec-Driven Development} (SDD),
+no qual o código é consequência de uma especificação rastreável, e não o
+contrário. O fluxo executado foi:
+
+\begin{enumerate}
+  \item \textbf{Auditoria do contexto}: análise das diretrizes técnicas de
+  origem (critérios metrológicos, critério \(R^3\), catálogo de defeitos),
+  disponíveis como documentos de entrada do projeto.
+  \item \textbf{Especificação}: formalização dos requisitos funcionais
+  (FR-001 a FR-019), requisitos não funcionais (NFR-001 a NFR-007) e critérios
+  de aceitação (CA-001 a CA-014) em `SPECIFICATION.md`, com matriz de
+  rastreabilidade.
+  \item \textbf{Design}: arquitetura, contratos de API, modelo de dados e
+  detalhamento por tarefas pequenas (T-001 a T-013) em `.specs/`.
+  \item \textbf{Implementação}: execução das tarefas com gate mínimo de
+  lint, type-check e testes por módulo.
+  \item \textbf{Validação}: testes unitários, de integração e de contrato, e
+  ensaio de ponta a ponta no navegador.
+\end{enumerate}
+
+Cada etapa deixou evidência verificável (especificação, design, tarefas,
+testes e registros de execução), o que é utilizado neste texto como base das
+afirmações sobre o sistema.
+
+\section{Materiais e ambiente}
+
+O sistema foi desenvolvido e validado no ambiente descrito na
+Tabela~\ref{tab:ferramentas}. As versões informadas correspondem às
+declaradas nos artefatos do projeto e verificadas durante a execução.
+
+\begin{table}[htbp]
+\centering
+\caption{Materiais, ferramentas e versões utilizados no desenvolvimento e na validação.}
+\label{tab:ferramentas}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Camada} & \textbf{Ferramenta} & \textbf{Versão/nota} \\
+\midrule
+Back-end & Python & 3.12 \\
+         & FastAPI & $\ge$ 0.115 (Pydantic v2) \\
+         & NumPy / SciPy & $\ge$ 1.26 / $\ge$ 1.13 \\
+         & SQLAlchemy + asyncpg + Alembic & 2.x / $\ge$ 0.29 / $\ge$ 1.13 \\
+         & ruff / mypy / pytest & lint, format, type-check, testes \\
+Front-end & React & 19.2.x instalada \\
+          & Vite / TypeScript & 8.2.x / 6.0.x \\
+          & Recharts & 3.10.x \\
+          & oxlint / Vitest / Testing Library & lint e testes \\
+Banco & PostgreSQL & 16 (contêiner Docker) \\
+Infra & Docker / Docker Compose & v2 \\
+Execução & Navegador & ensaio E2E em localhost:5173 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: `frontend/package.json`, `backend/requirements*.txt` e `docker-compose.yml` do projeto.}
+\end{table}
+
+\section{Arquitetura de teste em camadas}
+
+A estratégia de validação seguiu uma pirâmide de testes, com camadas de custo
+crescente e escopo decrescente:
+
+\begin{enumerate}
+  \item \textbf{Testes unitários} dos módulos puros de domínio
+  (`signal_generator`, `fft_processor`, `discard_engine`), sem acesso a banco
+  de dados ou rede. O motor de descarte recebe a última leitura persistida como
+  parâmetro injetado, o que permite cobrir todas as combinações da regra de ouro
+  e do Paralelepípedo de Descarte sem infraestrutura.
+  \item \textbf{Testes de integração} da camada de persistência, executados
+  contra um PostgreSQL real provisório (contêiner via `testcontainers`),
+  validando migração, transações e o ponteiro de última leitura persistida.
+  \item \textbf{Testes de contrato} da API, usando cliente HTTP assíncrono
+  contra a aplicação FastAPI, verificando os contratos de `POST /simulacoes`,
+  `POST /snapshots` e `GET /health`, incluindo validações de entrada e a
+  violação de Nyquist.
+  \item \textbf{Testes de front-end} (componentes e validação de formulário)
+  com Vitest e Testing Library.
+  \item \textbf{Ensaio de ponta a ponta} no navegador, contra o ambiente
+  Docker Compose completo, verificando o fluxo real de simulação e a renderização
+  dos elementos visuais.
+\end{enumerate}
+
+Os critérios de aceitação funcionais (CA-001 a CA-014) foram usados como
+fonte dos casos de teste, ligando cada teste ao requisito que implementa.
+
+\section{Métricas e critérios de validação}
+
+As métricas observadas na validação foram:
+
+\begin{itemize}
+  \item \textbf{correção espectral}: presença e ordem das componentes
+  esperadas para cada defeito do catálogo, verificadas no espectro retornado
+  pela API;
+  \item \textbf{correção do descarte}: decisão (persistir/descartar) de acordo
+  com a regra de ouro e o Paralelepípedo \(R^3\), conforme os casos de teste;
+  \item \textbf{tempo de processamento} por simulação (indicador exposto pela
+  API, FR-017);
+  \item \textbf{taxa de descarte acumulada} (leituras descartadas divididas
+  pelas leituras avaliadas, NFR-004);
+  \item \textbf{gates de qualidade}: lint e type-check limpos e suíte de
+  testes verde nas duas camadas.
+\end{itemize}
+
+\section{Protocolo experimental executado}
+
+O protocolo efetivamente executado foi o seguinte (distinguindo-se o planejado
+do executado):
+
+\begin{enumerate}
+  \item subir o ambiente completo com `start.sh` (Docker Compose: banco,
+  migrações Alembic, back-end e front-end);
+  \item semear um ponto de medição de demonstração com identificador fixo;
+  \item executar a suíte de testes do back-end (lint + type-check + pytest) e
+  do front-end (type-check + lint + vitest);
+  \item verificar, via chamadas reais à API, as assinaturas espectrais de
+  defeitos representativos (ex.: desbalanceamento com \(1X\) dominante,
+  desalinhamento paralelo com \(2X\)/\(4X\)/\(6X\), \emph{oil whirl} com
+  razão subsíncrona e rolamento com BPFI e \emph{sidebands});
+  \item executar o ensaio de ponta a ponta no navegador, simulando um defeito
+  e verificando os elementos visuais do painel;
+  \item registrar as evidências (contagens de testes, capturas de tela) para
+  este texto.
+\end{enumerate}
+
+O item 2 (seed de ponto) foi executado por script de inicialização, uma vez que
+o schema não expõe endpoint de criação de hierarquia no MVP; essa limitação é
+discutida no Capítulo~\ref{cap:discussao}.
+
+\section{Limitações metodológicas}
+
+As principais limitações metodológicas são: (i) a validação é local e não há
+ambiente de produção definido (NFR-005); (ii) a avaliação de desempenho
+baseou-se em testes funcionais e observação direta, sem bateria estatística
+formal de medições; e (iii) não foi conduzida revisão sistemática da literatura,
+apenas revisão delimitada. Essas limitações estão registradas nas pendências do
+trabalho e devem ser tratadas com o orientador.

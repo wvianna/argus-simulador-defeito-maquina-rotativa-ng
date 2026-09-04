@@ -1,0 +1,45 @@
+% Diagrama: Arquitetura do ARGUS (visão de contêineres/módulos)
+% Uso: \input{diagrams/arquitetura} dentro de um ambiente figure.
+\begin{tikzpicture}[
+  font=\small,
+  fe/.style={rectangle, draw=black!60, fill=blue!6, rounded corners=2pt, align=center, inner sep=5pt, minimum width=3.8cm, text width=3.6cm},
+  be/.style={rectangle, draw=black!60, fill=green!6, rounded corners=2pt, align=center, inner sep=5pt, minimum width=3.8cm, text width=3.6cm},
+  db/.style={rectangle, draw=black!60, fill=orange!8, rounded corners=2pt, align=center, inner sep=5pt, minimum width=3.8cm, text width=3.6cm},
+  lab/.style={font=\scriptsize},
+  arrow/.style={-{Stealth[length=2.4mm]}, semithick}
+]
+  % Coluna front-end
+  \node[fe] (ui) at (0,2.4) {Painel de simula\c{c}\~ao};
+  \node[fe] (fftchart) at (0,0) {Gr\'afico de FFT + limiar\\ e ordens $N$};
+  \node[fe] (check) at (0,-2.4) {Checklist de valida\c{c}\~ao};
+
+  % Coluna back-end
+  \node[be] (api) at (7,2.4) {API REST\\ \scriptsize POST /simulacoes, /snapshots};
+  \node[be] (gen) at (7,0) {Gera\c{c}\~ao de sinal};
+  \node[be] (fftm) at (7,-2.4) {FFT e extra\c{c}\~ao $R^3$};
+  \node[be] (disc) at (7,-4.8) {Motor de descarte\\ \scriptsize regra de ouro + Paralelep\'ipedo};
+  \node[be] (pers) at (7,-7.2) {Persist\^encia};
+
+  % Coluna banco
+  \node[db] (hier) at (14.5,3.6) {Planta/Área/\\M\'aquina/Ponto};
+  \node[db] (snap) at (14.5,1.2) {snapshots\_defeito};
+  \node[db] (leit) at (14.5,-1.2) {leituras\_persistidas};
+  \node[db] (trash) at (14.5,-3.6) {leituras\_trash};
+
+  % Fluxo front -> back
+  \draw[arrow] (ui.east) -- node[lab,above]{POST /simulacoes} (api.west);
+  \draw[arrow] (check.east) -- (api.west);
+  \draw[arrow] (api.west) to[out=180,in=0] node[lab,above,near end]{resposta (sinal+FFT+RMS)} (fftchart.east);
+
+  % Fluxo interno do back-end
+  \draw[arrow] (api) -- (gen);
+  \draw[arrow] (gen) -- (fftm);
+  \draw[arrow] (fftm) -- (disc);
+  \draw[arrow] (disc) -- (pers);
+
+  % Fluxo back -> banco
+  \draw[arrow] (api.east) to[out=0,in=180] (snap.west);
+  \draw[arrow] (pers.east) -- node[lab,above,pos=0.4]{aprovada} (leit.west);
+  \draw[arrow] (pers.east) -- node[lab,below,pos=0.3]{descartada} (trash.west);
+  \draw[arrow] (pers.east) to[out=0,in=180] node[lab,above,pos=0.6]{l\^e/atualiza} (hier.west);
+\end{tikzpicture}

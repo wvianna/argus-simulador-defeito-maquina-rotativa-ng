@@ -1,0 +1,315 @@
+% =====================================================================
+%  Capítulo 5 — Desenvolvimento (arquitetura e implementação)
+% =====================================================================
+\chapter{Desenvolvimento}
+\label{cap:desenvolvimento}
+
+Este capítulo descreve a arquitetura e a implementação do ARGUS, relacionando
+cada módulo aos requisitos que implementa. A descrição é fiel ao código
+efetivamente produzido e testado, cujos artefatos principais residem em
+`backend/` e `frontend/`.
+
+\section{Visão geral da arquitetura}
+
+O sistema é organizado em três camadas: \textbf{front-end} (aplica\c{c}\~ao web),
+\textbf{back-end} (API e l\'ogica de dom\'inio) e \textbf{banco de dados}
+(PostgreSQL). A Figura~\ref{fig:arquitetura} apresenta a arquitetura de
+m\'odulos e os fluxos principais.
+
+\begin{figure}[htbp]
+\centering
+\input{diagrams/arquitetura}
+\caption{Arquitetura do ARGUS: front-end (React), back-end (FastAPI) e banco de dados (PostgreSQL), com fluxos de simulação, descarte e persistência.}
+\label{fig:arquitetura}
+\caption*{\footnotesize Fonte: elaboração própria, com base na arquitetura real do projeto.}
+\end{figure}
+
+O fluxo nominal de uma simulação é: (i) a interface envia os parâmetros a
+`POST /simulacoes`; (ii) o back-end valida a entrada (incluindo o critério de
+Nyquist), gera o sinal, calcula a FFT e extrai os picos \(R^3\) e as métricas;
+(iii) o motor de descarte decide entre persistir e descartar com base na
+última leitura persistida do ponto; (iv) a resposta retorna sinal decimado,
+picos, métricas, decisão e indicadores. A Figura~\ref{fig:fluxo-descarte}
+detalha o fluxo de decisão de descarte e a Figura~\ref{fig:estados} a máquina
+de estados por leitura.
+
+\begin{figure}[htbp]
+\centering
+\input{diagrams/fluxo-descarte}
+\caption{Fluxo de decisão do motor de descarte: regra de ouro e Paralelepípedo de Descarte \(R^3\).}
+\label{fig:fluxo-descarte}
+\caption*{\footnotesize Fonte: elaboração própria, conforme `discard_engine.py`.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\input{diagrams/estados}
+\caption{Máquina de estados do processamento de uma leitura simulada.}
+\label{fig:estados}
+\caption*{\footnotesize Fonte: elaboração própria, conforme arquitetura do projeto.}
+\end{figure}
+
+\section{Requisitos e rastreabilidade}
+
+A especificação formaliza 19 requisitos funcionais (FR-001 a FR-019) e 7 não
+funcionais (NFR-001 a NFR-007), detalhados em `SPECIFICATION.md`. A
+Tabela~\ref{tab:requisitos} agrupa os requisitos por módulo de implementação.
+
+\begin{table}[htbp]
+\centering
+\caption{Agrupamento dos requisitos por módulo implementado.}
+\label{tab:requisitos}
+\begin{tabular}{@{}p{4.4cm}p{8.6cm}@{}}
+\toprule
+\textbf{Módulo} & \textbf{Requisitos associados} \\
+\midrule
+`signal_generator` & FR-001, FR-002, FR-003 \\
+`fft_processor` & FR-004, FR-005, FR-006, FR-019, NFR-001 \\
+`discard_engine` & FR-007, FR-008, FR-009, FR-010, FR-011 \\
+`persistence` & FR-011, FR-012, FR-013, NFR-003, NFR-004 \\
+`api` & FR-016, FR-017, FR-018, NFR-002 \\
+`frontend` & FR-014, FR-015, FR-016, FR-017, FR-018, FR-019 \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: SPECIFICATION.md do projeto.}
+\end{table}
+
+\section{Geração de sinais sintéticos}
+
+O módulo `signal_generator` implementa a síntese no domínio do tempo. Para cada
+defeito do catálogo, um conjunto de \emph{componentes espectrais} define a
+ordem (múltiplo de \(f_r\)), o peso relativo e, quando aplicável, a geração de
+bandas laterais em \(\pm 1X\). O sinal é composto pela soma de senoides
+\begin{equation}
+\label{eq:sintese}
+  s(t) = \sum_i A_i \sin(2\pi f_i t + \varphi_i) + n(t),
+\end{equation}
+em que \(f_i = ordem_i \cdot f_r\), \(A_i = peso_i \cdot severidade\) e
+\(n(t)\) é ruído branco gaussiano com desvio padrão igual ao parâmetro de ruído
+de fundo. A Tabela~\ref{tab:perfis} resume os perfis implementados
+(Tabela~\ref{tab:catalogo} contém o catálogo completo).
+
+\begin{table}[htbp]
+\centering
+\caption{Perfis espectrais implementados (ordens e pesos relativos) para defeitos representativos.}
+\label{tab:perfis}
+\begin{tabular}{@{}p{4.2cm}p{8.8cm}@{}}
+\toprule
+\textbf{Tipo} & \textbf{Componentes: ordem (peso)} \\
+\midrule
+sem\_defeito & 1X (0,20); 2X (0,03); 3X (0,015) \\
+desbalanceamento & 1X (1,00); 2X (0,07); 3X (0,04) \\
+desalinhamento\_angular & 1X (0,50); 2X (0,80); 3X (0,25); 1,5X (0,15); 2,5X (0,12); 4X (0,12) \\
+desalinhamento\_paralelo & 1X (0,40); 2X (1,00); 4X (0,40); 6X (0,18); 8X (0,08) \\
+rocamento & 1X (1,00); 2X (0,50); 3X (0,30); 4X (0,20); 5X (0,12); + sub-harmônicos se severo \\
+mancal\_frouxo & 1X--10X com pesos 0,70 a 0,08; + fracionários 0,5X/1,5X/2,5X \\
+acoplamento\_defeituoso & 1X (0,55); 2X (0,75); 3X (0,30); 4X (0,15) \\
+rolamento\_bpfi & BPFI (1,00); 2$\times$BPFI (0,40); 3$\times$BPFI (0,20) $\pm$ sidebands 1X \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: `DEFECT_PROFILES` e `_componentes_do_defeito` em `backend/app/domain/signal_generator.py`.}
+\end{table}
+
+Duas decisões de engenharia são relevantes. A primeira é a \emph{derivação da
+frequência a partir da rotação}: todas as frequências são recalculadas como
+\(f = ordem \cdot RPM/60\), nunca armazenadas como valores absolutos fixos, o
+que mantém a coerência cinemática em qualquer regime. A segunda é o
+\emph{determinismo da fase por ponto de medição}: a fase de cada componente é
+gerada a partir de uma semente derivada do identificador do ponto (referência
+de keyphasor estável), o que torna as leituras sucessivas de um mesmo ponto
+comparáveis em fase --- condição necessária para a verificação \(R^3\) ---
+enquanto o ruído permanece estocástico. O trecho a seguir ilustra o núcleo da
+síntese:
+
+\begin{lstlisting}[language=Python, caption={Núcleo da síntese de sinal em signal_generator.py.}, label={lst:gen}]
+for componente in _componentes_do_defeito(tipo_defeito, severidade, rng_fase):
+    freq = componente.ordem * freq_rotacao_hz      # ordem x (RPM/60)
+    amplitude = componente.peso * severidade
+    fase = rng_fase.uniform(0, 2*pi)
+    sinal += amplitude * np.sin(2*pi*freq*t + fase)
+    if componente.sidebands_1x:
+        for f_lat in (freq - fr, freq + fr):       # bandas laterais em +-1X
+            if f_lat > 0:
+                sinal += 0.2*amplitude * np.sin(2*pi*f_lat*t + fase_lat)
+sinal += rng_ruido.normal(0, ruido_efetivo, n)
+\end{lstlisting}
+
+Para os defeitos com razão subsíncrona dinâmica (\emph{oil whirl} e \emph{whirl
+por atrito}), a razão é amostrada em tempo de geração dentro de uma faixa
+especificada (\(0{,}39\)--\(0{,}48\) e \(0{,}30\)--\(0{,}70\), respectivamente),
+reproduzindo a variabilidade desses fenômenos. Para defeitos não lineares
+severo-dependentes (roçamento com severidade acima de \(0{,}6\) e mancal frouxo),
+sub-harmônicos e fracionários são adicionados, e o piso de ruído é elevado
+(roçamento e folga truncam a forma de onda), conforme a literatura
+\cite{randall2011,scheffer2004}.
+
+\section{Processamento espectral (FFT)}
+
+O módulo `fft_processor` calcula a FFT real (via `numpy.fft.rfft`), extrai os
+picos e as métricas. A estimativa de \(F_{max}\) de cada defeito é feita pela
+maior ordem do perfil (com piso de ordem 10) multiplicada por uma margem de
+bandas laterais de \(2{,}0\):
+\begin{equation}
+\label{eq:fmax}
+  F_{max} = \max\left(ordem_{maxima}, 10\right)\times 2{,}0 \times f_r .
+\end{equation}
+A validação de Nyquist rejeita configurações com \(f_s \le 2F_{max}\) antes de
+qualquer processamento (NFR-001). A detecção de picos considera máximos locais
+da magnitude acima de um \emph{limiar} absoluto, definido como o limiar relativo
+configurável multiplicado pela maior amplitude do espectro:
+\begin{equation}
+\label{eq:limiar}
+  \lambda = \lambda_{rel} \cdot \max_k |X[k]|,
+\end{equation}
+com os picos ordenados por amplitude e limitados a um máximo configurável. Para
+cada pico, registram-se frequência, amplitude (escala de pico, \(2|X|/N\)) e
+fase (em graus), compondo os vetores \(R^3\). As métricas RMS total, RMS de
+picos, RMS de ruído e valor DC são calculadas conforme a
+Seção~\ref{sec:r3} do Capítulo~\ref{cap:fundamentacao}, e o sinal de tempo é
+decimado para a visualização.
+
+\section{Motor de descarte}
+
+O módulo `discard_engine` implementa a regra de ouro e o Paralelepípedo de
+Descarte (Equações~\eqref{eq:regra-ouro} e~\eqref{eq:descarte} do
+Capítulo~\ref{cap:fundamentacao}). Sua interface recebe a leitura atual, a
+última leitura efetivamente persistida do ponto (ou `None` na primeira) e as
+tolerâncias configuráveis (desvio de rotação, \(\delta_f\), \(\delta_A\) e
+\(\delta_\phi\)). O resultado é uma decisão enumerada:
+
+\begin{lstlisting}[language=Python, caption={Decisões possíveis do motor de descarte.}, label={lst:decisoes}]
+PERSISTIR_PRIMEIRA_LEITURA   # nao ha referencia (FR-011)
+PERSISTIR_REGRA_DE_OURO      # |dRPM| > desvio e ha picos (FR-007)
+PERSISTIR_FORA_TOLERANCIA    # algum pico fora do R^3 (FR-010)
+DESCARTAR                    # todos os picos dentro do R^3 (FR-009)
+\end{lstlisting}
+
+A comparação de cada pico atual é feita contra o pico de referência mais
+próximo em frequência; se não houver pico de referência ou se qualquer desvio
+exceder a tolerância, a leitura é persistida. Como o motor é uma função pura
+(entrada \(\rightarrow\) saída), todas as combinações são testáveis
+unitariamente sem banco de dados, e a concorrência sobre o ponteiro de última
+leitura é tratada na camada de persistência, dentro da mesma transação que grava
+a nova leitura.
+
+\section{Persistência e modelo de dados}
+
+A camada `persistence` utiliza SQLAlchemy 2.x assíncrono e segue a hierarquia
+Planta~$\rightarrow$~Área~$\rightarrow$~Máquina~$\rightarrow$~Ponto. O schema
+lógico (Tabela~\ref{tab:schema}) materializa a arquitetura não normalizada
+adotada (NFR-003): os picos \(R^3\) de cada leitura são armazenados como um
+documento JSON em coluna `JSONB`, priorizando a velocidade de ingestão em
+relação à conveniência de consulta, conforme as diretrizes de origem.
+
+\begin{table}[htbp]
+\centering
+\caption{Visão lógica do modelo de dados persistido.}
+\label{tab:schema}
+\begin{tabular}{@{}p{5.2cm}p{7.8cm}@{}}
+\toprule
+\textbf{Relação} & \textbf{Conteúdo principal} \\
+\midrule
+plantas / areas / maquinas & hierarquia com chaves estrangeiras \\
+pontos & nó de medição; `ultima\_leitura\_persistida\_id` (ponteiro crítico) \\
+leituras\_persistidas & picos\_r3 (JSONB), rms\_total/ruido/picos, valor\_dc, rotacao, níveis, timestamp \\
+leituras\_trash & leitura descartada + `motivo\_descarte` \\
+snapshots\_defeito & par sensor + tipo de defeito + vínculo com a leitura \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: `.specs/codebase/ARCHITECTURE.md` e migração Alembic do projeto.}
+\end{table}
+
+A primeira migração Alembic cria as oito relações da
+Tabela~\ref{tab:schema}. O estado compartilhado crítico é o ponteiro
+`pontos.ultima\_leitura\_persistida\_id`: a decisão de descarte lê esse ponteiro
+e grava a nova leitura na \emph{mesma transação}, com lock de linha, evitando
+corridas entre simulações concorrentes do mesmo ponto. Leituras aprovadas são
+escritas em `leituras_persistidas` e atualizam o ponteiro; leituras descartadas
+vão para `leituras_trash`, sem alterar a referência.
+
+\section{API REST}
+
+A API é exposta pelo FastAPI com validação de schema Pydantic v2. Os endpoints
+implementados são resumidos na Tabela~\ref{tab:endpoints}; os contratos
+detalhados (requisição e resposta) constam do Apêndice~\ref{ap:contratos}.
+
+\begin{table}[htbp]
+\centering
+\caption{Endpoints REST implementados.}
+\label{tab:endpoints}
+\begin{tabular}{@{}p{4.6cm}p{4.4cm}p{4cm}@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Descrição} & \textbf{Requisitos} \\
+\midrule
+POST /simulacoes & gera sinal, FFT e decide descarte & FR-001 a FR-019, NFR-001 \\
+POST /snapshots & registra par sensor+defeito & FR-016 \\
+GET /health & verificação de saúde do serviço & --- \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: `backend/app/api/` do projeto.}
+\end{table}
+
+A resposta de `POST /simulacoes` contém `sinal_tempo` (decimado), `picos_r3`,
+`rms_total`, `rms_ruido`, `rms_picos`, `valor_dc`, `rotacao`, `limiar_picos` e
+`limiar_amplitude`, a decisão (`descartada` e `motivo_descarte`),
+`tempo_processamento_ms` e `taxa_descarte_acumulada`. Erros são mapeados como
+`422` (entrada inválida ou violação de Nyquist), `404` (ponto inexistente) e
+`500` (falha interna de persistência, sem corromper o ponteiro de referência).
+
+\section{Front-end}
+
+O front-end é uma SPA em React com gráficos Recharts, organizada em
+componentes: `PainelSimulacao` (formulário), `PainelSinal` (sinal e RMS),
+`GraficoFFT` (barras de espectro), `IndicadoresSimulacao` (tempo e taxa de
+descarte), `ChecklistValidacao`, `SnapshotDefeito` e o componente `Help`
+(tooltips de ajuda). O formulário reúne os parâmetros de máquina e de
+aquisição, incluindo um controle de limiar relativo de picos; a validação no
+cliente espelha o critério de Nyquist e bloqueia a submissão de parâmetros
+inválidos (FR-018, NFR-001).
+
+O gráfico de FFT exibe cada barra com a frequência em hertz e a ordem
+normalizada \(N\) (frequência dividida pela rotação em hertz), uma linha
+horizontal com o limiar absoluto e, abaixo do gráfico, o valor da rotação em
+hertz (FR-015). O registro de \emph{snapshot} associa o sensor ao tipo de
+defeito simulado e persiste via `POST /snapshots` (FR-016). O client HTTP
+tipado trata erros de rede e erros de API de forma explícita, exibindo
+mensagens compreensíveis ao usuário.
+
+\section{Infraestrutura e execução}
+
+O ambiente de execução local é definido por Docker Compose com três serviços:
+`db` (PostgreSQL 16 com volume persistente), `backend` (imagem Python que executa
+`alembic upgrade head` e inicia o Uvicorn na porta 8000) e `frontend` (build de
+produção servido por nginx na porta 80, com proxy de `/api/` para o back-end).
+Os scripts `start.sh` e `stop.sh` automatizam, respectivamente, o setup (checagem
+do Docker, cópia do `.env`, build de imagem se ausente, subida com espera de
+health e semeadura de um ponto de demonstração) e a derrubada do ambiente
+(inclusive com remoção opcional de volumes).
+
+\section{Decisões de engenharia (ADRs)}
+
+As principais decisões de arquitetura, registradas no projeto como ADRs, foram:
+
+\begin{itemize}
+  \item \textbf{JSONB para picos \(R^3\)} (NFR-003): banco relacional com colunas
+  JSON para os vetores de picos, priorizando ingestão; consultas por pico
+  individual exigem operadores JSON do PostgreSQL (reavaliar com indexação se
+  necessário).
+  \item \textbf{Processamento síncrono no MVP}: chamada request/response direta
+  via FastAPI; sem fila de mensagens. Reavaliar se o volume concorrente (NFR-005)
+  crescer.
+  \item \textbf{Sem autenticação nesta fase} (NFR-006): uso local/interno, CORS
+  restrito ao front de desenvolvimento; a validação Pydantic é a única barreira
+  no MVP.
+  \item \textbf{Determinismo de fase por ponto} e \textbf{limiar relativo
+  configurável}: decisões de domínio que habilitam, respectivamente, a
+  comparabilidade de fase no \(R^3\) e o descarte de ruído de fundo (FR-019).
+\end{itemize}
+
+\section{Observabilidade}
+
+Os logs de simulação são estruturados por requisição (parâmetros, decisão de
+descarte e tempo de processamento). A resposta de cada simulação inclui o tempo
+de processamento (FR-017) e a taxa de descarte acumulada (NFR-004), calculada
+pela camada de persistência como a proporção de leituras descartadas em relação
+às avaliadas por ponto.

@@ -1,0 +1,191 @@
+% =====================================================================
+%  Capítulo 1 — Introdução
+% =====================================================================
+\chapter{Introdução}
+\label{cap:introducao}
+
+\section{Contextualização}
+
+A disponibilidade operacional de máquinas rotativas --- motores, bombas,
+compressores, turbinas e redutores --- é um fator crítico em plantas
+industriais de alta performance. A falha não planejada de um ativo não apenas
+interrompe a produção, mas pode gerar danos secundários, riscos de segurança e
+custos de reparo muito superiores aos de uma intervenção planejada. Para
+mitigar esses riscos, a engenharia de manutenção evoluiu da manutenção
+corretiva e preventiva baseada em calendário para a \emph{manutenção
+preditiva}, na qual a condição do ativo é monitorada continuamente e as
+intervenções são decididas com base em evidências do estado de degradação
+\cite{scheffer2004,randall2011}.
+
+Dentre as técnicas de monitoramento de condição, a análise de vibração é uma
+das mais difundidas e informativas para máquinas rotativas. A vibração mecânica
+é consequência direta das forças dinâmicas internas da máquina e, portanto,
+carrega informação sobre o estado de componentes como rotores, mancais,
+acoplamentos e rolamentos \cite{harris2002}. A análise espectral por
+Transformada Rápida de Fourier (FFT) permite decompor o sinal de vibração e
+identificar componentes de frequência cuja origem cinemática pode ser
+associada a defeitos específicos \cite{randall2011,cooley1965}. Essa relação
+entre componente espectral e fenômeno mecânico fundamenta o diagnóstico de
+falhas em máquinas rotativas.
+
+O avanço da chamada Indústria 4.0, contudo, trouxe um desafio paradoxal: a
+digitalização e a sensorização massiva produzem um volume de dados brutos que,
+se armazenado de forma indiscriminada, sobrecarrega as infraestruturas e
+transforma um ativo analítico em passivo de armazenamento. Em sistemas de
+turbomáquinas, frequências de interesse da ordem de 5~kHz exigem taxas de
+amostragem de dezenas de milhares de amostras por segundo, multiplicadas por
+centenas de pontos de medição. Esse cenário motivou o desenvolvimento de
+estratégias de \emph{persistência seletiva}, em que a relevância técnica do
+dado precede a sua gravação, e o dado bruto redundante é substituído por
+representações compactas no domínio da frequência.
+
+Paralelamente, o treinamento de analistas de vibração e de algoritmos de
+inteligência artificial (IA) para diagnóstico depende da disponibilidade de
+sinais de defeitos variados, em diferentes severidades e condições
+operacionais. A aquisição desses sinais em ativos reais é lenta, cara e,
+frequentemente, inviável: um defeito deve primeiro ocorrer, ser detectado e ser
+documentado. A \emph{geração de sinais sintéticos} surge, então, como
+alternativa para emular falhas de forma controlada e segura, permitindo testar
+algoritmos e treinar analistas sem expor ativos críticos a riscos.
+
+Este trabalho situa-se na interseção desses dois problemas. A partir de um
+conjunto de diretrizes técnicas de engenharia de confiabilidade --- que
+estabelecem critérios metrológicos de aquisição, um critério de persistência
+seletiva denominado \(R^3\) e um catálogo de assinaturas espectrais de defeitos
+--- foi especificado, projetado e implementado o \textbf{ARGUS}, um simulador de
+defeitos em máquinas rotativas com geração de sinais vibracionais sintéticos,
+análise espectral por FFT e persistência seletiva de leituras, acompanhado de
+uma interface web para análise visual e registro de \emph{snapshots} de
+defeito.
+
+\section{Problema}
+
+A análise do contexto evidencia dois problemas interligados que este trabalho
+aborda:
+
+\begin{enumerate}
+  \item \textbf{Volume de dados brutos de vibração.} A aquisição contínua de
+  sinais no domínio do tempo gera um volume massivo de dados. Em frequências
+  de interesse de até 5~kHz, a taxa de amostragem mínima, segundo o critério de
+  Nyquist, é da ordem de dezenas de milhares de amostras por segundo, o que
+  torna o armazenamento indiscriminado inviável em escala industrial. É
+  necessário reduzir o volume persistido sem perder a capacidade diagnóstica,
+  conservando apenas a informação relevante --- os picos espectrais e as
+  métricas de energia do sinal --- e descartando a redundância.
+  \item \textbf{Falta de sinais de defeito para treinamento e pesquisa.}
+  Analistas e algoritmos de IA precisam de exemplos de defeitos em diferentes
+  estágios de severidade para aprendizado e validação. A obtenção desses
+  exemplos em ativos reais é limitada por risco, indisponibilidade e custo,
+  motivando a geração sintética de sinais cujas assinaturas espectrais sejam
+  tecnicamente coerentes com a literatura de diagnóstico de vibração.
+\end{enumerate}
+
+O desafio de engenharia é, portanto, duplo: \emph{como gerar} sinais
+vibracionais sintéticos cujas assinaturas espectrais representem defeitos
+específicos de máquinas rotativas, e \emph{como persistir seletivamente} as
+leituras de forma que apenas as transições de estado relevantes sejam
+armazenadas, preservando a rastreabilidade para a análise de causa raiz (RCA).
+
+\section{Justificativa}
+
+A justificativa deste trabalho apoia-se em três pilares. O primeiro é
+estratégico e econômico: a redução do volume de dados persistidos reduz o
+custo de infraestrutura de armazenamento e direciona a análise para o que é
+realmente crítico, aumentando o retorno sobre o investimento da manutenção
+preditiva \cite{scheffer2004}. O segundo é metodológico: a capacidade de
+emular falhas permite validar algoritmos de diagnóstico e treinar analistas sem
+expor ativos reais, o que acelera o desenvolvimento de competências e de
+modelos de IA. O terceiro é tecnológico: o trabalho materializa, em um sistema
+funcional e testado, um conjunto de diretrizes de engenharia de confiabilidade
+que, sem uma implementação de referência, permaneceriam apenas conceituais.
+
+Além disso, o projeto foi conduzido seguindo uma metodologia de
+especificação dirigida (Spec-Driven Development), o que gerou um acervo
+documental --- especificação de requisitos, design, arquitetura, testes --- que
+constitui evidência verificável do processo de engenharia adotado e base para a
+reprodutibilidade dos resultados aqui apresentados.
+
+\section{Objetivos}
+
+\subsection{Objetivo geral}
+
+Projetar e implementar um simulador de defeitos em máquina rotativa que gere
+sinais vibracionais sintéticos com assinatura espectral parametrizável por tipo
+de defeito e que aplique persistência seletiva de leituras --- por meio da
+regra de ouro e do Paralelepípedo de Descarte no critério \(R^3\) --- com uma
+interface web para análise espectral e registro de \emph{snapshots} de defeito
+para fins de treinamento e pesquisa.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}
+  \item Modelar e implementar a geração de sinais sintéticos cujas componentes
+  espectrais (ordens síncronas, harmônicos, sub-harmônicos, fracionários e
+  frequências de falha de rolamento) reproduzam o catálogo de defeitos de
+  máquinas rotativas adotado neste trabalho.
+  \item Implementar o processamento espectral por FFT com extração de picos no
+  espaço \(R^3\) (frequência, amplitude e fase), cálculo de RMS total, de ruído
+  e de picos, valor DC e limiar configurável de detecção de picos.
+  \item Implementar o motor de descarte (regra de ouro + Paralelepípedo de
+  Descarte \(R^3\)) e a persistência seletiva com hierarquia
+  Planta~$\rightarrow$~Área~$\rightarrow$~Máquina~$\rightarrow$~Ponto e
+  armazenamento de leituras descartadas (\emph{trash}).
+  \item Expor uma API REST e uma interface web com painel de sinal, gráfico de
+  FFT com ordens normalizadas \(N\) e rotação em Hz, indicadores de tempo de
+  processamento e taxa de descarte e funcionalidade de \emph{snapshot} de
+  defeito.
+  \item Validar o sistema por testes automatizados (unitários, de integração e
+  de contrato) e por ensaio de ponta a ponta, verificando as assinaturas
+  espectrais geradas e o fluxo de descarte.
+\end{enumerate}
+
+\section{Delimitação}
+
+O trabalho delimita-se ao desenvolvimento de um \emph{simulador} de sinais, e
+não de um sistema de aquisição real. As seguintes fronteiras são assumidas:
+
+\begin{itemize}
+  \item os sinais são gerados sinteticamente e não correspondem a medições em
+  ativos reais; as amplitudes relativas dos perfis são parâmetros de síntese,
+  conforme discutido no Capítulo~\ref{cap:fundamentacao};
+  \item as frequências de falha de rolamento (BPFO, BPFI, BSF e FTF) são
+  calculadas a partir de uma geometria padrão de rolamento;
+  \item o ambiente de execução é local (Docker Compose), sem autenticação e sem
+  ambiente de produção definidos, conforme decisões de projeto registradas no
+  Capítulo~\ref{cap:desenvolvimento};
+  \item o processamento é síncrono por requisição, sem filas ou lotes.
+\end{itemize}
+
+\section{Síntese da metodologia}
+
+Do ponto de vista metodológico, o trabalho classifica-se como pesquisa
+aplicada e desenvolvimento experimental, combinando engenharia de software,
+processamento digital de sinais e engenharia de confiabilidade. O processo
+adotado foi a especificação dirigida (Spec-Driven Development), no qual os
+requisitos funcionais e não funcionais são formalizados antes da implementação,
+o design é detalhado por tarefas pequenas e rastreáveis, e cada módulo é
+validado por testes automatizados. A metodologia completa, incluindo materiais,
+ambiente e critérios de aceitação, é descrita no Capítulo~\ref{cap:metodologia}.
+
+\section{Organização do trabalho}
+
+Além desta introdução, o trabalho está organizado da seguinte forma:
+
+\begin{itemize}
+  \item o \textbf{Capítulo~\ref{cap:fundamentacao}} apresenta a fundamentação
+  teórica: vibração em máquinas rotativas, aquisição e processamento de sinais,
+  FFT e análise espectral, catálogo de defeitos e o critério de persistência
+  seletiva \(R^3\);
+  \item o \textbf{Capítulo~\ref{cap:trabalhos}} discute trabalhos relacionados
+  e posiciona a contribuição deste trabalho;
+  \item o \textbf{Capítulo~\ref{cap:metodologia}} descreve materiais e métodos,
+  incluindo o processo de engenharia e os critérios de validação;
+  \item o \textbf{Capítulo~\ref{cap:desenvolvimento}} detalha a arquitetura e a
+  implementação do sistema;
+  \item o \textbf{Capítulo~\ref{cap:experimentos}} apresenta os experimentos e
+  resultados;
+  \item o \textbf{Capítulo~\ref{cap:discussao}} discute os resultados e as
+  limitações;
+  \item o \textbf{Capítulo~\ref{cap:conclusao}} conclui o trabalho e indica
+  trabalhos futuros.
+\end{itemize}

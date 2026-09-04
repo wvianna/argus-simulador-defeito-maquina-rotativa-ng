@@ -1,0 +1,41 @@
+% =====================================================================
+%  Resumo
+% =====================================================================
+\chapter*{RESUMO}
+\addcontentsline{toc}{chapter}{RESUMO}
+
+A manuten\c{c}\~ao preditiva de m\'aquinas rotativas depende da aquisi\c{c}\~ao
+cont\'inua de sinais de vibra\c{c}\~ao, cujo volume bruto, quando armazenado de
+forma indiscriminada, torna-se um passivo operacional e financeiro. Paralelamente,
+o treinamento de analistas e de algoritmos de intelig\^encia artificial em
+diagn\'ostico de vibra\c{c}\~ao requer sinais de defeitos variados e
+controlados, o que \'e invi\'avel em ativos reais. Este trabalho apresenta o
+projeto e a implementa\c{c}\~ao do \textbf{ARGUS}, um simulador de defeitos em
+m\'aquinas rotativas que gera sinais vibracionais sint\'eticos com assinatura
+espectral parametriz\'avel por tipo de defeito e aplica persist\^encia seletiva
+de leituras baseada no crit\'erio \(R^3\) (frequ\^encia, amplitude e fase), com
+regra de ouro para varia\c{c}\~ao de rota\c{c}\~ao e Paralelep\'ipedo de
+Descarte para filtragem de leituras redundantes.
+
+O sistema \'e composto por um back-end em Python e FastAPI, com m\'odulos de
+gera\c{c}\~ao de sinal, processamento espectral por FFT, motor de descarte e
+persist\^encia em PostgreSQL 16, e por um front-end em React, que apresenta
+painel de sinal, espectro FFT com ordens normalizadas \(N\) e rota\c{c}\~ao em
+Hz, indicadores de processamento e taxa de descarte e registro de \emph{snapshots}
+de defeito. O cat\'alogo contempla treze tipos de defeito com assinaturas
+espectrais derivadas da literatura de diagn\'ostico de vibra\c{c}\~ao, incluindo
+desbalanceamento, desalinhamento angular e paralelo, folgas, ro\c{c}amento,
+instabilidades de filme de \'oleo e falhas de rolamento (BPFO, BPFI, BSF e FTF).
+
+A valida\c{c}\~ao foi conduzida por testes automatizados (63 testes no
+back-end e 12 no front-end) e por ensaio de ponta a ponta no navegador, com
+verifica\c{c}\~ao das assinaturas espectrais geradas pela API. Os resultados
+indicam que o simulador reproduz as assinaturas esperadas e que o motor de
+descarte executa a persist\^encia seletiva conforme a hierarquia de decis\~ao
+definida, habilitando a cria\c{c}\~ao de bases de dados de treinamento e a
+pesquisa em an\'alise de causa raiz sem exposi\c{c}\~ao de ativos reais.
+
+\vspace{0.6cm}
+\noindent\textbf{Palavras-chave:} manuten\c{c}\~ao preditiva; an\'alise de
+vibra\c{c}\~ao; FFT; gera\c{c}\~ao de sinais sint\'eticos; persist\^encia
+seletiva; monitoramento de condi\c{c}\~ao.

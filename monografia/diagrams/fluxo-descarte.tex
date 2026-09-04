@@ -1,0 +1,28 @@
+% Diagrama: Fluxo de decisão do motor de descarte (regra de ouro + R^3)
+% Uso: \input{diagrams/fluxo-descarte} dentro de um ambiente figure.
+\begin{tikzpicture}[
+  font=\small,
+  dec/.style={diamond, draw=black!60, fill=gray!8, align=center, inner sep=1pt, aspect=3, text width=2.2cm},
+  act/.style={rectangle, draw=black!60, fill=green!6, rounded corners=2pt, align=center, inner sep=5pt, minimum width=4.0cm, text width=3.8cm},
+  term/.style={rectangle, draw=black!60, fill=orange!12, rounded corners=2pt, align=center, inner sep=5pt, minimum width=4.2cm, text width=4.0cm},
+  arrow/.style={-{Stealth[length=2.4mm]}, semithick},
+  lab/.style={font=\scriptsize}
+]
+  \node[act] (inicio) at (0,3.0) {Leitura avaliada (rota\c{c}\~ao + picos $R^3$)};
+  \node[dec] (primeira) at (0,0.6) {Primeira\\ leitura do\\ ponto?};
+  \node[dec] (ouro) at (6.0,0.6) {$|\Delta RPM| > \Delta_{rot}$\\ e n\'umero de\\ picos $>0$?};
+  \node[dec] (r3) at (12.0,0.6) {Todos os picos\\ dentro do\\ Paralelep\'ipedo?};
+  \node[term] (persiste) at (6.0,-2.8) {PERSISTIR\\ \scriptsize leituras\_persistidas (nova refer\^encia)};
+  \node[term] (descarta) at (12.0,-2.8) {DESCARTAR\\ \scriptsize registrar em leituras\_trash};
+
+  \draw[arrow] (inicio) -- (primeira);
+
+  \draw[arrow] (primeira.east) -- node[lab,above]{n\~ao} (ouro.west);
+  \draw[arrow] (primeira.south) -- ++(0,-1.6) -| node[lab,above,pos=0.25]{sim} (persiste.west);
+
+  \draw[arrow] (ouro.east) -- node[lab,above]{n\~ao} (r3.west);
+  \draw[arrow] (ouro.south) -- node[lab,left]{sim} (persiste.north);
+
+  \draw[arrow] (r3.south) -- node[lab,right]{sim} (descarta.north);
+  \draw[arrow] (r3.west) to[out=180,in=0] node[lab,above,pos=0.3]{n\~ao} (persiste.east);
+\end{tikzpicture}

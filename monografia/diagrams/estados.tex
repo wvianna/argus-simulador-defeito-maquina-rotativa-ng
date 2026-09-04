@@ -1,0 +1,22 @@
+% Diagrama: Máquina de estados por leitura simulada
+% Uso: \input{diagrams/estados} dentro de um ambiente figure.
+\begin{tikzpicture}[
+  font=\small,
+  st/.style={rectangle, draw=black!60, fill=blue!6, rounded corners=3pt, align=center, inner sep=6pt, minimum width=3.0cm},
+  fin/.style={rectangle, draw=black!60, fill=orange!12, rounded corners=3pt, align=center, inner sep=6pt, minimum width=3.0cm},
+  arrow/.style={-{Stealth[length=2.4mm]}, semithick},
+  lab/.style={font=\scriptsize}
+]
+  \node[st] (conf) at (0,0) {Configurado};
+  \node[st] (sinal) at (4.0,0) {Sinal gerado};
+  \node[st] (fft) at (8.0,0) {FFT/RMS/DC};
+  \node[st] (aval) at (12.0,0) {Avaliando descarte};
+  \node[fin] (pers) at (16.4,0) {Persistida};
+  \node[fin] (desc) at (14.2,-2.4) {Descartada};
+
+  \draw[arrow] (conf) -- node[lab,above]{gerar sinal} (sinal);
+  \draw[arrow] (sinal) -- node[lab,above]{calcular FFT} (fft);
+  \draw[arrow] (fft) -- node[lab,above]{avaliar} (aval);
+  \draw[arrow] (aval.east) -- node[lab,above,pos=0.4]{regra de ouro / fora de $R^3$ / primeira leitura} (pers.west);
+  \draw[arrow] (aval.south) to[out=-90,in=180] node[lab,left,pos=0.25]{todos dentro de $R^3$} (desc.west);
+\end{tikzpicture}
