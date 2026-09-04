@@ -46,7 +46,9 @@ async def criar_simulacao(
         # o Paralelepípedo de Descarte compare leituras sucessivas do mesmo ponto.
         semente_fase=payload.ponto_id.int,
     )
-    resultado_fft = fft_processor.processar(sinal, payload.taxa_amostragem_hz, fmax_hz)
+    resultado_fft = fft_processor.processar(
+        sinal, payload.taxa_amostragem_hz, fmax_hz, limiar_relativo=payload.limiar_picos
+    )
 
     ultima = await repository.obter_ultima_leitura_persistida(session, payload.ponto_id)
     leitura_atual = discard_engine.LeituraAvaliar(rotacao=payload.rpm, picos=resultado_fft.picos)
@@ -97,6 +99,8 @@ async def criar_simulacao(
         leitura_tipo=leitura_tipo,
         sinal_tempo=fft_processor.decimar_sinal(sinal),
         taxa_amostragem_hz=payload.taxa_amostragem_hz,
+        limiar_picos=payload.limiar_picos,
+        limiar_amplitude=resultado_fft.limiar_absoluto,
         picos_r3=[schemas.PicoResponse(**pico.__dict__) for pico in resultado_fft.picos],
         rms_total=resultado_fft.rms_total,
         rms_ruido=resultado_fft.rms_ruido,

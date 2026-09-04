@@ -30,6 +30,7 @@ class ResultadoFFT:
     rms_ruido: float
     rms_picos: float
     valor_dc: float
+    limiar_absoluto: float
 
 
 def estimar_fmax_hz(rpm: float, tipo_defeito: str) -> float:
@@ -94,6 +95,14 @@ def calcular_rms_total(sinal: np.ndarray) -> float:
     return float(np.sqrt(np.mean(np.square(sinal))))
 
 
+def amplitude_maxima(sinal: np.ndarray, taxa_amostragem_hz: float) -> float:
+    """Maior amplitude do espectro, usada para converter o limiar relativo em absoluto."""
+    if len(sinal) == 0:
+        return 0.0
+    espectro = np.fft.rfft(sinal)
+    return float(np.max(np.abs(espectro)) * 2 / len(sinal))
+
+
 def calcular_rms_picos(picos: list[Pico]) -> float:
     energia = sum((p.amplitude / np.sqrt(2)) ** 2 for p in picos)
     return float(np.sqrt(energia))
@@ -120,18 +129,25 @@ def decimar_sinal(sinal: np.ndarray, max_pontos: int = 2000) -> list[float]:
     return [float(v) for v in sinal[::passo][:max_pontos]]
 
 
-def processar(sinal: np.ndarray, taxa_amostragem_hz: float, fmax_hz: float) -> ResultadoFFT:
-    """Pipeline completo de FFT: valida Nyquist, extrai picos e calcula RMS/DC."""
+def processar(
+    sinal: np.ndarray,
+    taxa_amostragem_hz: float,
+    fmax_hz: float,
+    limiar_relativo: float = 0.05,
+) -> ResultadoFFT:
+    """Pipeline de FFT: valida Nyquist, extrai picos (com limiar anti-ruído) e calcula RMS/DC."""
     validar_nyquist(taxa_amostragem_hz, fmax_hz)
-    picos = calcular_picos(sinal, taxa_amostragem_hz)
+    picos = calcular_picos(sinal, taxa_amostragem_hz, limiar_relativo=limiar_relativo)
     rms_total = calcular_rms_total(sinal)
     rms_picos = calcular_rms_picos(picos)
     rms_ruido = calcular_rms_ruido(rms_total, rms_picos)
     valor_dc = calcular_valor_dc(sinal)
+    limiar_absoluto = amplitude_maxima(sinal, taxa_amostragem_hz) * limiar_relativo
     return ResultadoFFT(
         picos=picos,
         rms_total=rms_total,
         rms_ruido=rms_ruido,
         rms_picos=rms_picos,
         valor_dc=valor_dc,
+        limiar_absoluto=limiar_absoluto,
     )

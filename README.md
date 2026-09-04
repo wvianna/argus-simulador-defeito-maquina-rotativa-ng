@@ -24,6 +24,126 @@ Detalhes completos de requisitos e critérios de aceitação: [SPECIFICATION.md]
 
 Justificativa e alternativas consideradas: [.specs/codebase/STACK.md](.specs/codebase/STACK.md).
 
+## Arquitetura
+
+### Visão geral (componentes e fluxo de dados)
+
+```mermaid
+flowchart LR
+    subgraph Front-end [Front-end - React/Vite]
+        UI[Painel de simulação]
+        FFTChart[Gráfico de FFT + threshold]
+        Checklist[Checklist de validação]
+    end
+
+    subgraph Backend [Back-end - FastAPI]
+        API[API REST]
+        GEN[Módulo de geração de sinal]
+        FFTMOD[Módulo de FFT e extração R^3]
+        DISCARD[Motor de descarte<br/>regra de ouro + Paralelepípedo]
+        PERSIST[Camada de persistência]
+    end
+
+    subgraph DB [PostgreSQL]
+        HIER[(Planta/Área/Máquina/Ponto)]
+        LEITURAS[(leituras_persistidas)]
+        TRASH[(leituras_trash)]
+        SNAP[(snapshots_defeito)]
+    end
+
+    UI -->|POST /simulacoes| API
+    Checklist -->|valida antes de enviar| API
+    API --> GEN --> FFTMOD --> DISCARD
+    DISCARD -->|aprovada| PERSIST --> LEITURAS
+    DISCARD -->|descartada| PERSIST --> TRASH
+    PERSIST --> HIER
+    API -->|POST /snapshots| SNAP
+    API -->|resposta: sinal, FFT, RMS, decisão| FFTChart
+```
+
+### Ciclo de vida de uma leitura (máquina de estados)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Configurado
+    Configurado --> SinalGerado: gerar sinal
+    SinalGerado --> FFTCalculada: calcular FFT/RMS/DC
+    FFTCalculada --> AvaliandoDescarte
+    AvaliandoDescarte --> Persistida: regra de ouro satisfeita\nOU pico fora da tolerância R^3\nOU primeira leitura do ponto
+    AvaliandoDescarte --> Descartada: todos os picos dentro da tolerância R^3
+    Persistida --> [*]
+    Descartada --> [*]
+```
+
+### Modelo de dados (entidades e relacionamentos)
+
+```mermaid
+erDiagram
+    PLANTAS ||--o{ AREAS : possui
+    AREAS ||--o{ MAQUINAS : contem
+    MAQUINAS ||--o{ PONTOS : possui
+    PONTOS ||--o{ LEITURAS_PERSISTIDAS : gera
+    PONTOS ||--o{ LEITURAS_TRASH : descarta
+    LEITURAS_PERSISTIDAS ||--o{ SNAPSHOTS_DEFEITO : referencia
+    LEITURAS_TRASH ||--o{ SNAPSHOTS_DEFEITO : referencia
+
+    PLANTAS {
+        uuid id PK
+        text nome
+    }
+    AREAS {
+        uuid id PK
+        uuid planta_id FK
+        text nome
+    }
+    MAQUINAS {
+        uuid id PK
+        uuid area_id FK
+        text nome
+    }
+    PONTOS {
+        uuid id PK
+        uuid maquina_id FK
+        text nome
+        uuid ultima_leitura_persistida_id FK
+    }
+    LEITURAS_PERSISTIDAS {
+        uuid id PK
+        uuid ponto_id FK
+        timestamp timestamp_original
+        float rotacao
+        jsonb picos_r3
+        float rms_total
+        float rms_ruido
+        float rms_picos
+        float valor_dc
+        float nivel_alerta
+        float nivel_shutdown
+    }
+    LEITURAS_TRASH {
+        uuid id PK
+        uuid ponto_id FK
+        timestamp timestamp_original
+        float rotacao
+        jsonb picos_r3
+        float rms_total
+        float rms_ruido
+        float rms_picos
+        float valor_dc
+        text motivo_descarte
+    }
+    SNAPSHOTS_DEFEITO {
+        uuid id PK
+        uuid leitura_id FK
+        text leitura_tipo
+        text sensor_id
+        text tipo_defeito
+        timestamp criado_em
+    }
+```
+
+> `snapshots_defeito.leitura_id` é polimórfico: aponta para `leituras_persistidas` ou `leituras_trash` (campo `leitura_tipo` indica qual). Detalhes em [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md).
+
 ## Requisitos
 
 - Docker e Docker Compose instalados.

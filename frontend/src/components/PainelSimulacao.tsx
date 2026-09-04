@@ -37,11 +37,9 @@ export function PainelSimulacao() {
     }
   }
 
-  // Limiar de alarme (placeholder do MVP): 80% da maior amplitude dos picos,
-  // para a linha de threshold ficar dentro da escala visível do gráfico de FFT.
-  const thresholdEstimado = resultado
-    ? Math.max(...resultado.picos_r3.map((p) => p.amplitude), 0) * 0.8
-    : 0;
+  // Linha de limiar do gráfico: usa o limiar absoluto calculado no back-end (FR-019),
+  // que descarta picos abaixo do valor configurado (ruído de fundo).
+  const thresholdEstimado = resultado ? resultado.limiar_amplitude : 0;
 
   return (
     <main>
@@ -105,6 +103,21 @@ export function PainelSimulacao() {
             onChange={(e) => atualizarCampo("numero_amostras", e.target.value)}
           />
         </label>
+        <label>
+          Limiar de picos — descarte de ruído ({Number(estado.limiar_picos) * 100}%)
+          <input
+            type="range"
+            min="0.005"
+            max="0.5"
+            step="0.005"
+            value={estado.limiar_picos}
+            onChange={(e) => atualizarCampo("limiar_picos", e.target.value)}
+          />
+          <span>
+            Abaixo deste limiar os picos são tratados como ruído de fundo e não entram
+            na FFT exibida.
+          </span>
+        </label>
 
         <ChecklistValidacao estado={estado} />
 
@@ -122,7 +135,11 @@ export function PainelSimulacao() {
             taxaAmostragemHz={resultado.taxa_amostragem_hz}
             rmsTotal={resultado.rms_total}
           />
-          <GraficoFFT picos={resultado.picos_r3} threshold={thresholdEstimado} />
+          <GraficoFFT
+            picos={resultado.picos_r3}
+            threshold={thresholdEstimado}
+            rotacaoHz={resultado.rotacao / 60}
+          />
           <IndicadoresSimulacao
             tempoProcessamentoMs={resultado.tempo_processamento_ms}
             taxaDescarteAcumulada={resultado.taxa_descarte_acumulada}

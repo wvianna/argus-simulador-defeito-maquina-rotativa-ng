@@ -39,6 +39,33 @@ def test_rms_picos_e_ruido_coerentes_com_rms_total() -> None:
     assert resultado.valor_dc == pytest.approx(0.0, abs=1e-9)
 
 
+def test_limiar_picos_descarta_ruido_de_fundo() -> None:
+    """FR-019: limiar relativo maior deve reduzir a quantidade de picos detectados."""
+    taxa_amostragem_hz = 10_000.0
+    numero_amostras = 4096
+    rng = np.random.default_rng(7)
+    sinal = 3.0 * np.sin(2 * np.pi * 200.0 * np.arange(numero_amostras) / taxa_amostragem_hz)
+    sinal += rng.normal(0, 0.4, numero_amostras)  # ruído de fundo significativo
+
+    picos_baixo = fp.calcular_picos(sinal, taxa_amostragem_hz, limiar_relativo=0.001)
+    picos_alto = fp.calcular_picos(sinal, taxa_amostragem_hz, limiar_relativo=0.5)
+
+    assert len(picos_alto) <= len(picos_baixo)
+    assert len(picos_alto) >= 1  # o pico dominante deve permanecer
+
+
+def test_processar_retorna_limiar_absoluto() -> None:
+    taxa_amostragem_hz = 4096.0
+    numero_amostras = 4096
+    sinal = _sinal_senoide(200.0, 3.0, taxa_amostragem_hz, numero_amostras)
+
+    resultado = fp.processar(sinal, taxa_amostragem_hz, fmax_hz=500.0, limiar_relativo=0.1)
+
+    amplitude_max = fp.amplitude_maxima(sinal, taxa_amostragem_hz)
+    assert resultado.limiar_absoluto == pytest.approx(amplitude_max * 0.1)
+    assert resultado.limiar_absoluto > 0
+
+
 def test_validar_nyquist_rejeita_taxa_insuficiente() -> None:
     with pytest.raises(fp.NyquistViolationError):
         fp.validar_nyquist(taxa_amostragem_hz=800.0, fmax_hz=500.0)  # 800 <= 2*500

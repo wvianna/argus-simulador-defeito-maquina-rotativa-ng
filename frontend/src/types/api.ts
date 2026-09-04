@@ -29,6 +29,7 @@ export interface SimulacaoRequest {
   ruido_fundo: number;
   taxa_amostragem_hz: number;
   numero_amostras: number;
+  limiar_picos: number;
 }
 
 export interface Pico {
@@ -42,6 +43,8 @@ export interface SimulacaoResponse {
   leitura_tipo: "persistida" | "trash";
   sinal_tempo: number[];
   taxa_amostragem_hz: number;
+  limiar_picos: number;
+  limiar_amplitude: number;
   picos_r3: Pico[];
   rms_total: number;
   rms_ruido: number;

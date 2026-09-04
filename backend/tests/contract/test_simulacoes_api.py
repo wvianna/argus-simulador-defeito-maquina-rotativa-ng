@@ -44,6 +44,23 @@ async def test_simulacao_calcula_picos_e_rms(client: AsyncClient, ponto_seed: Po
 
 
 @pytest.mark.asyncio
+async def test_limiar_picos_controla_descarte_de_ruido(
+    client: AsyncClient, ponto_seed: Ponto
+) -> None:
+    """FR-019: o limiar_picos é aceito, aplicado e refletido na resposta."""
+    payload = _payload_valido(str(ponto_seed.id))
+    payload["limiar_picos"] = 0.4
+
+    resposta = await client.post("/simulacoes", json=payload)
+
+    assert resposta.status_code == 200
+    corpo = resposta.json()
+    assert corpo["limiar_picos"] == 0.4
+    assert corpo["limiar_amplitude"] > 0
+    assert len(corpo["picos_r3"]) >= 1  # pico dominante permanece mesmo com limiar alto
+
+
+@pytest.mark.asyncio
 async def test_primeira_simulacao_do_ponto_e_sempre_persistida(
     client: AsyncClient, ponto_seed: Ponto
 ) -> None:

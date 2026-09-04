@@ -9,6 +9,7 @@ export interface FormularioState {
   ruido_fundo: string;
   taxa_amostragem_hz: string;
   numero_amostras: string;
+  limiar_picos: string;
 }
 
 export const FORMULARIO_INICIAL: FormularioState = {
@@ -19,6 +20,7 @@ export const FORMULARIO_INICIAL: FormularioState = {
   ruido_fundo: "0.05",
   taxa_amostragem_hz: "25600",
   numero_amostras: "4096",
+  limiar_picos: "0.05",
 };
 
 export interface ItemChecklist {
@@ -38,6 +40,7 @@ export function validarFormulario(estado: FormularioState): {
   const ruidoFundo = Number(estado.ruido_fundo);
   const taxaAmostragemHz = Number(estado.taxa_amostragem_hz);
   const numeroAmostras = Number(estado.numero_amostras);
+  const limiarPicos = Number(estado.limiar_picos);
 
   const fmaxEstimadoHz = (rpm / 60) * 20; // aproximação: 10x ordem padrão x margem de 2 (ver fft_processor.estimar_fmax_hz)
 
@@ -65,6 +68,11 @@ export function validarFormulario(estado: FormularioState): {
       valido: Number.isInteger(numeroAmostras) && numeroAmostras > 0 && numeroAmostras <= 65536,
     },
     {
+      chave: "limiar_picos",
+      descricao: "Limiar de picos entre 0 e 1",
+      valido: Number.isFinite(limiarPicos) && limiarPicos > 0 && limiarPicos <= 1,
+    },
+    {
       chave: "nyquist",
       descricao: "Taxa de amostragem respeita o critério de Nyquist (> 2x Fmax estimado)",
       valido: Number.isFinite(taxaAmostragemHz) && taxaAmostragemHz > 2 * fmaxEstimadoHz,
@@ -85,6 +93,7 @@ export function validarFormulario(estado: FormularioState): {
           ruido_fundo: ruidoFundo,
           taxa_amostragem_hz: taxaAmostragemHz,
           numero_amostras: numeroAmostras,
+          limiar_picos: limiarPicos,
         }
       : null,
   };

@@ -12,16 +12,40 @@ export class ApiError extends Error {
   }
 }
 
+/** Extrai uma mensagem legível do corpo de erro da API (detail string ou array Pydantic). */
+function mensagemDoErro(corpo: unknown, statusText: string): string {
+  const detail = (corpo as { detail?: unknown } | null)?.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d) => {
+        const msg = (d as { msg?: string }).msg;
+        const loc = (d as { loc?: unknown[] }).loc;
+        return msg ? `${Array.isArray(loc) ? loc.join(".") : "campo"}: ${msg}` : JSON.stringify(d);
+      })
+      .join(" | ");
+  }
+  return statusText || "Erro desconhecido";
+}
+
 async function post<TResponse>(path: string, body: unknown): Promise<TResponse> {
-  const resposta = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(
+      "Não foi possível conectar ao servidor. Verifique se os serviços estão no ar (rode ./start.sh).",
+      0,
+    );
+  }
 
   if (!resposta.ok) {
-    const corpo = await resposta.json().catch(() => ({ detail: resposta.statusText }));
-    throw new ApiError(corpo.detail ?? "Erro desconhecido", resposta.status);
+    const corpo = await resposta.json().catch(() => null);
+    throw new ApiError(mensagemDoErro(corpo, resposta.statusText), resposta.status);
   }
 
   return (await resposta.json()) as TResponse;

@@ -36,6 +36,16 @@ describe("validarFormulario", () => {
     const { valido } = validarFormulario(estado);
     expect(valido).toBe(false);
   });
+
+  it("rejeita limiar de picos fora do intervalo (FR-019)", () => {
+    const estado = {
+      ...FORMULARIO_INICIAL,
+      ponto_id: "11111111-1111-1111-1111-111111111111",
+      limiar_picos: "2",
+    };
+    const { valido } = validarFormulario(estado);
+    expect(valido).toBe(false);
+  });
 });
 
 describe("ChecklistValidacao", () => {

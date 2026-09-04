@@ -8,7 +8,12 @@ describe("GraficoFFT", () => {
       { frequencia_hz: 29.7, amplitude: 3.2, fase_graus: 10 },
       { frequencia_hz: 59.4, amplitude: 0.8, fase_graus: 20 },
     ];
-    render(<GraficoFFT picos={picos} threshold={2.5} />);
+    render(<GraficoFFT picos={picos} threshold={2.5} rotacaoHz={30} />);
     expect(screen.getByLabelText("grafico-fft")).toBeInTheDocument();
+  });
+
+  it("exibe a rotação em Hz abaixo do gráfico", () => {
+    render(<GraficoFFT picos={[]} threshold={1} rotacaoHz={30} />);
+    expect(screen.getByLabelText("rotacao-hz")).toHaveTextContent("30.00 Hz");
   });
 });

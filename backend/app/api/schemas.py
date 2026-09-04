@@ -18,6 +18,8 @@ class SimulacaoRequest(BaseModel):
     ruido_fundo: float = Field(ge=0)
     taxa_amostragem_hz: float = Field(gt=0)
     numero_amostras: int = Field(gt=0, le=65536)
+    # Limiar relativo (0..1) aplicado à FFT para descartar picos de ruído de fundo (FR-019).
+    limiar_picos: float = Field(default=0.05, gt=0, le=1)
 
     @field_validator("tipo_defeito")
     @classmethod
@@ -40,6 +42,8 @@ class SimulacaoResponse(BaseModel):
     leitura_tipo: str  # 'persistida' | 'trash'
     sinal_tempo: list[float]  # amostras decimadas do sinal (FR-014), não persistidas
     taxa_amostragem_hz: float
+    limiar_picos: float  # limiar relativo usado na extração (FR-019)
+    limiar_amplitude: float  # limiar absoluto (amplitude) para desenhar a linha no gráfico
     picos_r3: list[PicoResponse]
     rms_total: float
     rms_ruido: float
