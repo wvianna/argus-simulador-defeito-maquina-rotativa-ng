@@ -13,6 +13,8 @@
 - [x] T-009 Painel visual (sinal + RMS) e gráfico de FFT
 - [x] T-010 Ação de snapshot de defeito + indicadores de tempo/taxa de descarte no front-end
 - [x] T-011 Observabilidade (logs estruturados + métrica de taxa de descarte)
+- [x] T-012 Limiar de picos configurável para descarte de ruído da FFT (FR-019)
+- [x] T-013 Gráfico FFT com ordem N e rotação em Hz (FR-015)
 
 > **Status de implementação (2026-09-04):** todas as tarefas do MVP foram implementadas e o gate mínimo foi executado com sucesso (`PASS`). Evidência por camada abaixo.
 
@@ -29,9 +31,11 @@
 | T-009 | Vitest (PainelSinal, GraficoFFT) | PASS |
 | T-010 | Vitest (SnapshotDefeito, IndicadoresSimulacao) | PASS |
 | T-011 | `pytest tests/unit/test_observability.py` | PASS |
+| T-012 | `pytest tests/unit/test_fft_processor.py` + contrato `test_simulacoes_api.py` (limiar) + Vitest (checklist limiar) | PASS |
+| T-013 | Vitest (GraficoFFT — rotação Hz e ordens) + validação visual no navegador | PASS |
 
-- Suíte completa de back-end: `ruff check` + `mypy` + `pytest` → **48 passed**.
-- Suíte completa de front-end: `tsc -b` + `oxlint` + `vitest run` → **9 passed**.
+- Suíte completa de back-end: `ruff check` + `mypy` + `pytest` → **52 passed**.
+- Suíte completa de front-end: `tsc -b` + `oxlint` + `vitest run` → **11 passed**.
 - Nível de evidência: `LOCAL` (CI não configurado — `A CONFIRMAR`).
 
 ---

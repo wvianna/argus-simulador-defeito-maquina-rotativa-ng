@@ -67,13 +67,12 @@ export function GraficoFFT({ picos, threshold, rotacaoHz }: GraficoFFTProps) {
             />
             <YAxis domain={[0, limiteY]} label={{ value: "Amplitude", angle: -90, position: "insideLeft" }} />
             <Tooltip
-              formatter={(value: number | string, name: string) => [value, name]}
               labelFormatter={(label) => {
                 const ordem = rotacaoHz > 0 ? Number(label) / rotacaoHz : 0;
                 return `${label} Hz (${ordem.toFixed(1)}N)`;
               }}
             />
-            <Bar dataKey="amplitude" fill="#2563eb" barSize="33%" />
+            <Bar dataKey="amplitude" fill="#2563eb" barSize={5} />
             <ReferenceLine y={threshold} stroke="red" strokeDasharray="4 4" label="Limiar" />
           </BarChart>
         </ResponsiveContainer>

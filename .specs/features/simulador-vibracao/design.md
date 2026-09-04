@@ -40,7 +40,8 @@ Ver diagrama de estados em `.specs/codebase/ARCHITECTURE.md`. Resumo textual:
   "severidade": 0.6,
   "ruido_fundo": 0.05,
   "taxa_amostragem_hz": 25600,
-  "numero_amostras": 4096
+  "numero_amostras": 4096,
+  "limiar_picos": 0.05
 }
 ```
 
@@ -52,6 +53,8 @@ Ver diagrama de estados em `.specs/codebase/ARCHITECTURE.md`. Resumo textual:
 {
   "leitura_id": "uuid",
   "sinal_tempo": [/* amostras, opcional/paginado se grande */],
+  "limiar_picos": 0.05,
+  "limiar_amplitude": 0.0266,
   "picos_r3": [{"frequencia_hz": 29.7, "amplitude": 4.2, "fase_graus": 12.0}],
   "rms_total": 5.1,
   "rms_ruido": 0.4,

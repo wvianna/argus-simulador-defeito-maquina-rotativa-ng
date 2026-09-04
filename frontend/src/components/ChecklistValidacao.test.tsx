@@ -5,9 +5,17 @@ import { ChecklistValidacao } from "./ChecklistValidacao";
 
 describe("validarFormulario", () => {
   it("é inválido quando ponto_id está vazio (CA-010)", () => {
-    const { valido, payload } = validarFormulario(FORMULARIO_INICIAL);
+    const estado = { ...FORMULARIO_INICIAL, ponto_id: "" };
+    const { valido, payload } = validarFormulario(estado);
     expect(valido).toBe(false);
     expect(payload).toBeNull();
+  });
+
+  it("é válido com o ponto predefinido do formulário inicial", () => {
+    const { valido, payload } = validarFormulario(FORMULARIO_INICIAL);
+    expect(valido).toBe(true);
+    expect(payload).not.toBeNull();
+    expect(payload?.ponto_id).toBe("69c0eb95-618c-4fc7-a15f-e21f4abf7a99");
   });
 
   it("é válido quando todos os campos estão corretos", () => {

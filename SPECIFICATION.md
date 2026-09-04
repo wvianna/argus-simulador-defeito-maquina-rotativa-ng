@@ -68,10 +68,11 @@ Eventos: `simulação iniciada`, `sinal gerado`, `fft calculada`, `picos extraí
 - **FR-012**: O sistema deve persistir, para cada leitura aprovada: picos `R^3`, RMS total, RMS do ruído, RMS dos picos, valor DC, níveis de alerta/shutdown vigentes, rotação e timestamp original da leitura.
 - **FR-013**: O sistema deve organizar os dados persistidos segundo a hierarquia Planta > Área > Máquina > Ponto.
 - **FR-014**: O front-end deve exibir um painel visual com o sinal simulado do acelerômetro e o valor de RMS.
-- **FR-015**: O front-end deve exibir um gráfico de FFT com barras verticais para as frequências identificadas e uma linha horizontal representando o threshold (limiar de alarme).
+- **FR-015**: O front-end deve exibir um gráfico de FFT com barras verticais para as frequências identificadas e uma linha horizontal representando o threshold (limiar). Cada barra deve indicar a frequência em Hz e a ordem normalizada `N` (frequência do pico ÷ rotação em Hz, ex.: `1N`, `0.5N`); abaixo do gráfico deve ser exibida a rotação em Hz.
 - **FR-016**: O front-end deve permitir registrar um "snapshot de defeito": gravação em banco de dados do par sensor + anomalia, para uso em treinamento e pesquisa de RCA.
 - **FR-017**: O front-end deve exibir indicadores de tempo de processamento e de taxa de descarte da simulação executada.
 - **FR-018**: O front-end deve exibir um checklist de validação dos parâmetros de entrada, impedindo o início da simulação enquanto houver parâmetro pendente ou inválido.
+- **FR-019**: O usuário deve poder ajustar o limiar de detecção de picos (`limiar_picos`, relativo 0..1) para descartar o ruído de fundo da FFT; o limiar é aplicado no processamento do back-end (picos abaixo do limiar não são reportados) e refletido no gráfico, e a resposta deve informar `limiar_picos` (relativo) e `limiar_amplitude` (absoluto).
 
 ## Requisitos não funcionais
 
@@ -97,6 +98,8 @@ Eventos: `simulação iniciada`, `sinal gerado`, `fft calculada`, `picos extraí
 - [ ] **CA-010 (erro)**: DADO parâmetros de entrada incompletos ou inválidos, QUANDO o usuário tenta iniciar a simulação, ENTÃO o checklist de validação impede o início e indica os campos pendentes/incorretos. _(FR-018)_
 - [ ] **CA-011 (erro/borda)**: DADO uma taxa de amostragem configurada menor ou igual a 2× a `Fmax` pretendida, QUANDO o usuário tenta iniciar a simulação, ENTÃO o sistema rejeita a configuração por violação do critério de Nyquist. _(NFR-001)_
 - [ ] **CA-012**: DADO uma simulação concluída, QUANDO o usuário observa os indicadores, ENTÃO o sistema exibe tempo de processamento e taxa de descarte da execução. _(FR-017, NFR-002, NFR-004)_
+- [ ] **CA-013**: DADO um `limiar_picos` configurado (ex.: 0.4), QUANDO a simulação é executada, ENTÃO os picos abaixo do limiar são descartados da FFT e a resposta contém `limiar_picos` e `limiar_amplitude`. _(FR-019)_
+- [ ] **CA-014**: DADO uma simulação concluída, QUANDO o usuário visualiza o gráfico de FFT, ENTÃO cada barra exibe a frequência em Hz e a ordem `N` (frequência ÷ rotação em Hz), e a rotação em Hz aparece abaixo do gráfico. _(FR-015)_
 
 ## Interface de operações (contrato preliminar)
 
@@ -127,6 +130,8 @@ Eventos: `simulação iniciada`, `sinal gerado`, `fft calculada`, `picos extraí
 | FR-018 | CA-010 | Unitário/E2E (checklist) | PENDENTE |
 | NFR-001 | CA-011 | Unitário (validação de Nyquist) | PENDENTE |
 | FR-017, NFR-002, NFR-004 | CA-012 | Manual/integração (indicadores) | PENDENTE |
+| FR-019 | CA-013 | Unitário (FFT com limiar) + contrato | PASS (backend 52 testes / frontend 11 testes, nível LOCAL) |
+| FR-015 | CA-014 | E2E/manual (gráfico com ordens N) | PASS (validado no navegador) |
 
 ## Premissas
 

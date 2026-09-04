@@ -13,7 +13,8 @@ export interface FormularioState {
 }
 
 export const FORMULARIO_INICIAL: FormularioState = {
-  ponto_id: "",
+  // Ponto demo criado pelo start.sh (hierarquia Planta>Área>Máquina>Ponto).
+  ponto_id: "69c0eb95-618c-4fc7-a15f-e21f4abf7a99",
   rpm: "1780",
   tipo_defeito: TIPOS_DEFEITO[0],
   severidade: "0.6",
