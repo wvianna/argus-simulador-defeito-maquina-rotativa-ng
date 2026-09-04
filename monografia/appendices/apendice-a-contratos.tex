@@ -1,3 +1,65 @@
-% Apêndice A — Contratos de API
+% =====================================================================
+%  Apêndice A — Contratos de API
+% =====================================================================
 \chapter{Contratos de API}
-% Conteúdo a escrever.
+\label{ap:contratos}
+
+Este apêndice detalha os contratos de operação da API, conforme o design do
+projeto. Os valores numéricos são ilustrativos do formato (extraídos do
+`design.md`); valores observados em execução real constam do
+Capítulo~\ref{cap:experimentos} e do Apêndice~\ref{ap:execucao}.
+
+\section{POST /simulacoes --- requisição}
+
+\begin{lstlisting}[caption={Corpo da requisição de POST /simulacoes.}]
+{
+  "ponto_id": "uuid-do-ponto",
+  "rpm": 1780,
+  "tipo_defeito": "desbalanceamento",
+  "severidade": 0.6,
+  "ruido_fundo": 0.05,
+  "taxa_amostragem_hz": 25600,
+  "numero_amostras": 4096,
+  "limiar_picos": 0.05
+}
+\end{lstlisting}
+
+O campo `tipo_defeito` deve pertencer ao catálogo de treze defeitos
+(Seção~\ref{cap:fundamentacao}, Tabela~\ref{tab:catalogo}).
+
+\section{POST /simulacoes --- resposta}
+
+\begin{lstlisting}[caption={Formato da resposta de POST /simulacoes.}]
+{
+  "leitura_id": "uuid",
+  "sinal_tempo": [ ... ],        // decimado para o painel
+  "limiar_picos": 0.05,
+  "limiar_amplitude": 0.0266,
+  "picos_r3": [ { "frequencia_hz": 29.7, "amplitude": 4.2, "fase_graus": 12.0 } ],
+  "rms_total": 5.1,
+  "rms_ruido": 0.4,
+  "rms_picos": 4.9,
+  "valor_dc": 0.02,
+  "rotacao": 1780,
+  "descartada": false,
+  "motivo_descarte": null,
+  "tempo_processamento_ms": 42,
+  "taxa_descarte_acumulada": 0.73
+}
+\end{lstlisting}
+
+\section{POST /snapshots}
+
+Requisição: `{ "leitura_id": "uuid", "sensor_id": "string", "tipo_defeito":
+"desbalanceamento" }`. Resposta `201`: `{ "snapshot_id": "uuid", "criado_em":
+"..." }`.
+
+\section{Códigos de erro}
+
+\begin{itemize}
+  \item \texttt{422}: parâmetro obrigatório ausente/inválido ou violação do
+  critério de Nyquist (\(f_s \le 2F_{max}\), NFR-001/CA-011);
+  \item \texttt{404}: `ponto_id` inexistente;
+  \item \texttt{500}: falha interna de persistência (a leitura anterior
+  permanece como referência válida).
+\end{itemize}

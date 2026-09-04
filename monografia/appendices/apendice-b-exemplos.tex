@@ -1,3 +1,52 @@
-% Apêndice B — Exemplos de execução
+% =====================================================================
+%  Apêndice B — Exemplos de execução (transcrições reais)
+% =====================================================================
 \chapter{Exemplos de Execução}
-% Conteúdo a escrever.
+\label{ap:execucao}
+
+Este apêndice registra transcrições reais de execução, como evidência dos
+resultados reportados no Capítulo~\ref{cap:experimentos}.
+
+\section{Gates de qualidade}
+
+\begin{lstlisting}[caption={Gate do back-end (execução real).}]
+$ ruff check app tests && mypy app && python -m pytest -q
+All checks passed!
+Success: no issues found in 17 source files
+63 passed, 1 warning in 5.24s
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Gate do front-end (execução real).}]
+$ npx tsc -b && npx oxlint && npx vitest run
+Test Files  5 passed (5)
+     Tests  12 passed (12)
+\end{lstlisting}
+
+\section{Fluxo de descarte observado via API}
+
+Transcrição das decisões observadas (ponto de demonstração, desvio de rotação
+configurado em 5\,rpm):
+
+\begin{lstlisting}[caption={Chamadas reais a POST /simulacoes (resumido).}]
+sim 1  rpm=1780 -> descartada: False | motivo: Variacao de rotacao 20.0 > desvio 5.0
+sim 2  rpm=1780 -> descartada: True  | motivo: Todos os picos dentro da tolerancia R^3
+sim 3  rpm=1810 -> descartada: False | motivo: Variacao de rotacao 30.0 > desvio 5.0
+\end{lstlisting}
+
+\section{Picos observados para rolamento BPFI}
+
+Transcrição parcial da resposta real (1800\,rpm, \(f_s=25600\)\,Hz, \(N=8192\)):
+
+\begin{lstlisting}[caption={Picos \(R^3\) retornados (ordenados por frequência).}]
+f= 131.25 Hz (ordem  4.38N)  A=0.1205   <- BPFI - 1X
+f= 162.50 Hz (ordem  5.42N)  A=0.6664   <- BPFI
+f= 190.62 Hz (ordem  6.35N)  A=0.0973   <- BPFI + 1X
+f= 293.75 Hz (ordem  9.79N)  A=0.0627   <- 2xBPFI - 1X
+f= 325.00 Hz (ordem 10.83N)  A=0.2359   <- 2xBPFI
+f= 353.12 Hz (ordem 11.77N)  A=0.0553   <- 2xBPFI + 1X
+f= 487.50 Hz (ordem 16.25N)  A=0.0933   <- 3xBPFI
+\end{lstlisting}
+
+A resolução espectral da configuração é \(\Delta f = 25600/8192 =
+3{,}125\)\,Hz, o que explica os pequenos desvios em relação às frequências
+teóricas.

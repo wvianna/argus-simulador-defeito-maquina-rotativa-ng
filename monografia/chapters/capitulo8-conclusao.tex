@@ -1,3 +1,84 @@
-% Capítulo 8 — Conclusão
+% =====================================================================
+%  Capítulo 8 — Conclusão
+% =====================================================================
 \chapter{Conclusão}
-% Conteúdo a escrever.
+\label{cap:conclusao}
+
+Este trabalho apresentou o projeto e a implementação do \textbf{ARGUS}, um
+simulador de defeitos em máquinas rotativas que integra geração de sinais
+vibracionais sintéticos com assinatura espectral parametrizável, análise
+espectral por FFT e persistência seletiva de leituras, acompanhado de uma
+interface web para análise e registro de \emph{snapshots} de defeito.
+
+\section{Atendimento aos objetivos}
+
+Retomando os objetivos específicos definidos no
+Capítulo~\ref{cap:introducao}:
+
+\begin{enumerate}
+  \item A \textbf{geração sintética} foi implementada com um catálogo de treze
+  defeitos cujas componentes espectrais (ordens síncronas, harmônicos,
+  sub-harmônicos, fracionários e frequências de falha de rolamento) são
+  derivadas da rotação e seguem a literatura de diagnóstico
+  (Capítulo~\ref{cap:desenvolvimento}); as assinaturas foram verificadas
+  experimentalmente (Capítulo~\ref{cap:experimentos}).
+  \item O \textbf{processamento espectral} extrai picos \(R^3\) com limiar
+  configurável, calcula RMS total/ruído/picos, valor DC e valida o critério de
+  Nyquist, expondo `limiar_picos` e `limiar_amplitude` (FR-019).
+  \item O \textbf{motor de descarte} implementa a regra de ouro e o
+  Paralelepípedo de Descarte \(R^3\), com persistência seletiva na hierarquia
+  Planta/Área/Máquina/Ponto e armazenamento de \emph{trash}; o comportamento foi
+  demonstrado por execução real (Capítulo~\ref{cap:experimentos}).
+  \item A \textbf{API REST e a interface web} expõem painel de sinal, espectro
+  FFT com ordens \(N\) e rotação em Hz, indicadores de tempo/taxa de descarte e
+  \emph{snapshot} de defeito (FR-014 a FR-018).
+  \item A \textbf{validação} foi conduzida por 63 testes no back-end e 12 no
+  front-end, além de ensaio de ponta a ponta, com gates de qualidade limpos.
+\end{enumerate}
+
+Dessa forma, o objetivo geral --- projetar e implementar um simulador que gere
+sinais sintéticos com persistência seletiva \(R^3\) e interface de análise ---
+foi atendido na escala do MVP.
+
+\section{Contribuições}
+
+As principais contribuições são:
+
+\begin{itemize}
+  \item um \textbf{gerador de sinais sintéticos} aberto e testável, com
+  catálogo amplo de defeitos e coerência espectral com a literatura;
+  \item a \textbf{materialização do critério \(R^3\)} (regra de ouro +
+  Paralelepípedo de Descarte) em um motor puro, testável e integrado à
+  persistência transacional;
+  \item uma \textbf{plataforma de treinamento e pesquisa}, com interface que
+  explicita ordens \(N\), rotação, limiar e telemetria, apoiando a criação de
+  bases rotuladas e a pesquisa em RCA;
+  \item a \textbf{rastreabilidade completa} entre requisitos, design, código e
+  testes (Spec-Driven Development), que garante reprodutibilidade e facilita a
+  evolução do sistema.
+\end{itemize}
+
+\section{Limitações}
+
+As limitações principais foram discutidas no Capítulo~\ref{cap:discussao} e
+resumem-se a: sinais sintéticos (amplitudes relativas, sem dinâmica de máquina
+específica), geometria padrão de rolamento, fase determinística, validação
+local sem bateria estatística formal e requisitos abertos de ambiente
+(NFR-005/NFR-006).
+
+\section{Trabalhos futuros}
+
+Como continuidade, sugerem-se: parametrização da geometria de rolamento e
+exposição na interface; bateria estatística de desempenho e de taxas de
+descarte; gestão da hierarquia via API; testes E2E versionados; comparação
+quantitativa com bases de dados medidas; avaliação do impacto da taxa de
+descarte na reconstrução de tendências; e o fechamento dos requisitos de
+autenticação e de ambiente de produção.
+
+\section{Consideração final}
+
+O ARGUS demonstra que é possível conciliar a geração de sinais de defeito
+tecnicamente coerentes com a redução do volume de dados persistidos, sem perder
+a capacidade diagnóstica, fornecendo uma base concreta e reprodutível para
+treinamento de analistas e de algoritmos e para a pesquisa em manutenção
+preditiva de máquinas rotativas.

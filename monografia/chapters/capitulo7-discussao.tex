@@ -1,3 +1,108 @@
-% Capítulo 7 — Discussão
+% =====================================================================
+%  Capítulo 7 — Discussão
+% =====================================================================
 \chapter{Discussão}
-% Conteúdo a escrever.
+\label{cap:discussao}
+
+Este capítulo interpreta os resultados apresentados no
+Capítulo~\ref{cap:experimentos}, compara-os com a literatura e com os
+requisitos, identifica limitações e discute as implicações para o uso do
+simulador em treinamento e pesquisa.
+
+\section{Interpretação dos resultados}
+
+Os resultados experimentais indicam que os dois objetivos centrais do sistema
+foram alcançados na escala do MVP.
+
+Em relação à \textbf{geração sintética}, as assinaturas espectrais observadas
+via API reproduzem o catálogo: o desbalanceamento apresenta \(1X\) dominante, o
+desalinhamento paralelo apresenta \(2X\) com harmônicos pares, o \emph{oil
+whirl} apresenta a componente subsíncrona esperada e o \emph{rolamento bpfi}
+apresenta pico em \(\approx 5{,}4N\) (coerente com \(BPFI = 5{,}4\,f_r\) para a
+geometria padrão) com harmônicos e \emph{sidebands} em \(\pm 1X\). A presença
+dessas bandas laterais, em particular, é qualitativamente consistente com o
+comportamento descrito na literatura para falhas avançadas de rolamento, em que
+a modulação em \(1X\) decorre da variação de carga durante a rotação
+\cite{randall2011}. Pequenos desvios de frequência em relação aos valores
+teóricos são explicáveis pela resolução espectral (\(\Delta f = f_s/N\)) e pelo
+ruído aditivo, e não representam erro conceitual do gerador.
+
+Em relação à \textbf{persistência seletiva}, a sequência observada
+(Tabela~\ref{tab:descarte}) demonstra o funcionamento da hierarquia de decisão:
+mudança de regime de rotação dispara a regra de ouro e persiste a leitura;
+regime estabilizado com picos dentro da tolerância \(R^3\) leva ao descarte; e
+nova mudança de regime volta a persistir. Esse comportamento é exatamente o que
+a diretriz de origem preconiza para evitar tanto o armazenamento indiscriminado
+quanto o \emph{drift} de dados, pois a comparação é feita contra a última
+leitura efetivamente persistida (FR-008).
+
+\section{Comparação com a literatura e com os requisitos}
+
+A estratégia de representar a leitura por vetores de picos \(R^3\) e métricas de
+energia, descartando o sinal de tempo redundante, está alinhada à prática de
+monitoramento de condição, na qual a análise se dá no domínio da frequência e
+as tendências são acompanhadas por amplitudes de ordem \cite{scheffer2004}. A
+decisão de comparar contra a última leitura persistida (e não contra a última
+avaliada) é um refinamento de projeto que protege contra o acúmulo de pequenas
+variações; essa distinção, ausente em implementações ingênuas de
+diferença-leitura-anterior, é um dos pontos de contribuição da implementação.
+
+Todos os critérios de aceitação funcionais previstos para o MVP foram
+atendidos ou verificados (CA-001 a CA-014), com destaque para CA-013 (limiar de
+picos com `limiar_picos`/`limiar_amplitude`) e CA-014 (ordens \(N\) e rotação em
+Hz no gráfico), validados por teste de contrato e ensaio no navegador,
+respectivamente. As metas numéricas abertas (NFR-002 latência, NFR-005 volume)
+permanecem `A CONFIRMAR`, conforme a especificação.
+
+\section{Limitações}
+
+As limitações do trabalho são apresentadas de forma explícita:
+
+\begin{itemize}
+  \item \textbf{Sinais sintéticos não são medições reais.} As amplitudes dos
+  perfis são parâmetros de síntese; um sinal real depende de massa, rigidez,
+  amortecimento, ressonâncias, posição do sensor, carga e montagem. O simulador
+  reproduz a \emph{estrutura espectral} dos defeitos, não a resposta dinâmica de
+  uma máquina específica. Isso limita o uso dos sinais para calibração de
+  severidade absoluta, mas não compromete o uso para treinamento de
+  reconhecimento de padrões e validação de algoritmos.
+  \item \textbf{Geometria padrão de rolamento.} As frequências BPFO/BPFI/BSF/FTF
+  usam uma geometria padrão (\(n=9\), \(B_d/P_d = 0{,}2\)). Para uso em campo, a
+  geometria real deve ser parametrizável (pendência registrada).
+  \item \textbf{Fase determinística por ponto.} A fase é derivada de uma semente
+  fixa por ponto (referência de keyphasor simulada). Isso habilita a comparação
+  \(R^3\), mas não modela a variação real de fase entre instalações de sensores.
+  \item \textbf{Validação local e ausência de bateria estatística.} Os ensaios
+  foram executados em ambiente local (Docker Compose) e os tempos de
+  processamento são indicativos, sem bateria estatística formal (NFR-002/NFR-005
+  em aberto). Não há ambiente de produção definido.
+  \item \textbf{Sem endpoint de gestão da hierarquia.} A hierarquia
+  Planta/Área/Máquina/Ponto é criada por migração/seed e não há endpoint para
+  criá-la na API do MVP, o que restringe o uso autônomo da ferramenta.
+  \item \textbf{Tratamento de desaparecimento de picos.} No descarte \(R^3\), a
+  verificação percorre os picos da leitura atual; um pico que desaparece em
+  relação à referência não força a persistência por si só (apenas a ausência de
+  picos é coberta pela regra de ouro condicionada). Esse comportamento foi
+  observado na chamada 2 da Tabela~\ref{tab:descarte} e é uma área a refinar.
+\end{itemize}
+
+\section{Implicações para treinamento e pesquisa}
+
+A combinação de catálogo amplo, severidade configurável, ruído controlado e
+registro de \emph{snapshots} sensor+defeito torna o ARGUS uma plataforma
+adequada para: (i) gerar conjuntos de dados rotulados para treinamento de
+modelos de classificação de defeitos; (ii) treinar analistas no reconhecimento
+visual de assinaturas espectrais; e (iii) pesquisar a persistência seletiva e o
+impacto da taxa de descarte na reconstrução de tendências. A rastreabilidade
+entre objetivo, método, evidência e resultado, mantida ao longo do projeto,
+apoia a reprodutibilidade dos experimentos aqui descritos.
+
+\section{Trabalhos futuros}
+
+Como desdobramentos naturais, citam-se: parametrização da geometria de
+rolamento e exposição na interface; formalização de bateria estatística de
+desempenho e de taxas de descarte; endpoint de gestão da hierarquia; testes E2E
+versionados (Playwright); integração com bases de dados medidas para
+comparação quantitativa; avaliação de impacto da taxa de descarte na
+reconstrução de tendências; e definição de autenticação e ambiente de
+produção quando os requisitos NFR-005/NFR-006 forem fechados.

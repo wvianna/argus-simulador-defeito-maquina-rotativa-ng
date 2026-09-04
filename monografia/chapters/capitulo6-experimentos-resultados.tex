@@ -1,3 +1,215 @@
-% Capítulo 6 — Experimentos e resultados
+% =====================================================================
+%  Capítulo 6 — Experimentos e resultados
+% =====================================================================
 \chapter{Experimentos e Resultados}
-% Conteúdo a escrever.
+\label{cap:experimentos}
+
+Este capítulo apresenta os experimentos realizados e os resultados obtidos.
+Todos os resultados reportados foram efetivamente observados na execução do
+sistema (testes automatizados e chamadas reais à API), conforme os protocolos
+descritos no Capítulo~\ref{cap:metodologia}; nenhum dado foi fabricado.
+
+\section{Testes automatizados (gates de qualidade)}
+
+O gate de qualidade de cada camada foi executado e os resultados estão nas
+Tabelas~\ref{tab:testes-backend} e~\ref{tab:testes-frontend}.
+
+\begin{table}[htbp]
+\centering
+\caption{Resultado do gate do back-end (execução local).}
+\label{tab:testes-backend}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+\textbf{Ferramenta} & \textbf{Resultado} & \textbf{Observação} \\
+\midrule
+`ruff check` & limpo & lint sem violações \\
+`mypy app` & limpo & type-check sem erros \\
+`pytest -q` & \textbf{63 passed} & unit + integração + contrato \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Resultado do gate do front-end (execução local).}
+\label{tab:testes-frontend}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+\textbf{Ferramenta} & \textbf{Resultado} & \textbf{Observação} \\
+\midrule
+`tsc -b` & limpo & type-check sem erros \\
+`oxlint` & limpo & lint sem violações \\
+`vitest run` & \textbf{12 passed} & 5 arquivos de teste \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: execução real documentada em STATUS.md do projeto.}
+\end{table}
+
+Os testes do back-end cobrem, entre outros: a geração de sinal para cada tipo
+de defeito do catálogo (incluindo as razões subsíncronas do \emph{oil whirl} e
+os sub-harmônicos do roçamento), a extração de picos \(R^3\) e o cálculo de RMS,
+DC e limiar, todas as combinações do motor de descarte (regra de ouro e
+Paralelepípedo), a persistência transacional com PostgreSQL real e os contratos
+da API (incluindo a rejeição por violação de Nyquist). Os testes do front-end
+cobrem a validação do formulário e a renderização dos componentes.
+
+\section{Validação das assinaturas espectrais}
+
+A corretude espectral foi verificada por chamadas reais a `POST /simulacoes`,
+observando-se as componentes retornadas para defeitos representativos do
+catálogo. A Tabela~\ref{tab:assinaturas} resume as verificações.
+
+\begin{table}[htbp]
+\centering
+\caption{Assinaturas espectrais verificadas experimentalmente via API.}
+\label{tab:assinaturas}
+\begin{tabular}{@{}p{4.2cm}p{8.8cm}@{}}
+\toprule
+\textbf{Defeito} & \textbf{Assinatura observada} \\
+\midrule
+desbalanceamento & componente dominante em \(1X\) (1,05N), com \(2X\) de baixa amplitude \\
+desalinhamento\_paralelo & \(2X\) dominante, com harmônicos pares \(4X\)/\(6X\) \\
+oil\_whirl & componente subsíncrona dominante (razão observada \(\approx 0{,}42X\)) + \(1X\) \\
+rolamento\_bpfi & pico em \(\approx 5{,}4N\) (BPFI) com harmônicos (\(2\times\), \(3\times\)) e \emph{sidebands} em \(\pm 1X\) \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: observações registradas nas sessões de validação (STATUS.md/HANDOFF.md) e repetidas nesta execução.}
+\end{table}
+
+Como exemplo quantitativo, a Tabela~\ref{tab:bpfi-picos} apresenta os picos
+\(R^3\) reais obtidos em uma simulação de \emph{rolamento bpfi} a 1800\,rpm
+(\(f_r = 30\)\,Hz, \(f_s = 25600\)\,Hz, \(N = 8192\), limiar relativo 0,05). A
+geometria padrão (\(n=9\), \(B_d/P_d = 0{,}2\)) resulta em
+\(BPFI = 5{,}4 \times f_r = 162\)\,Hz; o pico mais forte foi observado em
+162,5\,Hz (ordem 5,42N), com \emph{sidebands} em \(\pm 1X\) (131,25\,Hz e
+190,62\,Hz) e harmônicos em 325\,Hz (\(2\times\)) e 487,5\,Hz (\(3\times\)),
+com suas respectivas bandas laterais --- coerente com as
+Equações~\eqref{eq:bpfi} e com a literatura \cite{randall2011}. As pequenas
+diferenças em relação aos valores teóricos decorrem da resolução espectral
+(\(\Delta f = f_s/N = 3{,}125\)\,Hz) e do ruído aditivo.
+
+\begin{table}[htbp]
+\centering
+\caption{Picos \(R^3\) observados em simulação de rolamento BPFI (1800 rpm, extração real via API).}
+\label{tab:bpfi-picos}
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+\textbf{Frequência (Hz)} & \textbf{Ordem (N)} & \textbf{Amplitude} & \textbf{Interpretação} \\
+\midrule
+131,25 & 4,38 & 0,1205 & sideband \(BPFI - 1X\) \\
+\textbf{162,50} & \textbf{5,42} & \textbf{0,6664} & \textbf{BPFI} ($\approx 5{,}4\times f_r$) \\
+190,62 & 6,35 & 0,0973 & sideband \(BPFI + 1X\) \\
+293,75 & 9,79 & 0,0627 & sideband \(2\times BPFI - 1X\) \\
+325,00 & 10,83 & 0,2359 & \(2\times BPFI\) \\
+353,12 & 11,77 & 0,0553 & sideband \(2\times BPFI + 1X\) \\
+487,50 & 16,25 & 0,0933 & \(3\times BPFI\) \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: resposta real de `POST /simulacoes` nesta execução.}
+\end{table}
+
+\section{Fluxo de descarte observado via API}
+
+Para verificar o comportamento do motor de descarte, foram executadas três
+chamadas reais ao mesmo ponto de medição com `desbalanceamento`. A
+Tabela~\ref{tab:descarte} resume o resultado observado (o ponto já possuía uma
+leitura persistida em sessão anterior a 1800\,rpm).
+
+\begin{table}[htbp]
+\centering
+\caption{Sequência observada de decisões de descarte para o mesmo ponto (execução real).}
+\label{tab:descarte}
+\begin{tabular}{@{}clll@{}}
+\toprule
+\textbf{Chamada} & \textbf{RPM} & \textbf{Decisão} & \textbf{Motivo / observação} \\
+\midrule
+1 & 1780 & persistir & regra de ouro: variação de rotação 20\,rpm $>$ desvio 5\,rpm \\
+2 & 1780 & \textbf{descartar} & todos os picos dentro da tolerância \(R^3\) \\
+3 & 1810 & persistir & regra de ouro: variação de rotação 30\,rpm $>$ desvio 5\,rpm \\
+\bottomrule
+\end{tabular}
+\caption*{\footnotesize Fonte: respostas reais de `POST /simulacoes` nesta execução; desvio de rotação configurado em 5\,rpm.}
+\end{table}
+
+O comportamento observado é coerente com a especificação: a mudança de regime
+de rotação dispara a regra de ouro e persiste a leitura (FR-007); com o regime
+estabilizado, leituras redundantes são descartadas pelo Paralelepípedo (FR-009);
+e uma nova mudança de rotação volta a persistir (FR-007). A taxa de descarte
+acumulada observada no ponto ficou em torno de \(0{,}39\) (leituras descartadas
+divididas pelas avaliadas), refletindo o histórico de execuções do ponto de
+demonstração.
+
+\section{Desempenho de processamento}
+
+O tempo de processamento por simulação, medido na resposta da API, foi da ordem
+de \(8\)--\(10\)\,ms nas configurações testadas (4096--8192 amostras a
+25,6\,kHz, ambiente local), com o custo dominado pela FFT e pela síntese do
+sinal. Esses valores são indicativos (FR-017) e não constituem uma bateria
+estatística formal; a meta numérica de latência permanece `A CONFIRMAR`
+(NFR-002).
+
+\section{Ensaio de ponta a ponta no navegador}
+
+O ambiente completo foi subido com o script de inicialização e o fluxo foi
+exercitado no navegador. A Figura~\ref{fig:formulario} mostra o formulário de
+simulação com os parâmetros e o checklist de validação; a
+Figura~\ref{fig:resultado} mostra o resultado de uma simulação de
+\emph{rolamento bpfi}, com o painel de sinal, o espectro FFT (barras com
+frequência e ordem \(N\), linha de limiar e rotação em Hz), os indicadores de
+processamento e o registro de \emph{snapshot}. As Figuras~\ref{fig:desbal} a
+\ref{fig:frouxo} ilustram espectros observados no painel para outros defeitos.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.86\textwidth]{dashboard-formulario.png}
+\caption{Formulário de simulação do ARGUS (parâmetros e checklist de validação).}
+\label{fig:formulario}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{dashboard_desbalanceamento.png}
+\caption{Espectro FFT observado no painel para desbalanceamento (\(1X\) dominante).}
+\label{fig:desbal}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{dashboard_desalinhamento_paralelo.png}
+\caption{Espectro FFT observado no painel para desalinhamento paralelo (\(2X\) dominante + harmônicos pares).}
+\label{fig:despar}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{dashboard_instabilidade_fime_oleo.png}
+\caption{Espectro FFT observado no painel para instabilidade de filme de óleo (componente subsíncrona).}
+\label{fig:oilwhirl}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{dashboard_mancal_frouxo.png}
+\caption{Espectro FFT observado no painel para mancal frouxo (família de harmônicos).}
+\label{fig:frouxo}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{dashboard-simulacao.png}
+\caption{Resultado completo de simulação de rolamento BPFI: sinal no tempo, espectro FFT (ordens \(N\)), telemetria e snapshot.}
+\label{fig:resultado}
+\caption*{\footnotesize Fonte: captura real do painel.}
+\end{figure}
+
+O ensaio confirmou a presença e o funcionamento dos elementos visuais exigidos
+pelos critérios de aceitação CA-008, CA-009, CA-010, CA-012 e CA-014: painel de
+sinal com RMS, gráfico de FFT com barras e linha de limiar, rótulos de
+frequência e ordem \(N\), rotação em Hz abaixo do gráfico, indicadores de tempo
+e taxa de descarte, checklist de validação e registro de \emph{snapshot}.
