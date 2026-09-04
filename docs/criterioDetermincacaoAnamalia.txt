@@ -1,0 +1,71 @@
+Protocolo Estratégico de Diagnóstico de Vibração: Análise Espectral via FFT
+
+Como Analista de Vibração Nível IV (ISO 18436), estabeleço este protocolo para assegurar o rigor metrológico e a precisão diagnóstica em ativos críticos. A integridade do dado primário é o pilar estratégico de toda a engenharia de confiabilidade; sem uma aquisição fundamentada em hardware e processamento de sinal adequados, o diagnóstico torna-se uma conjectura inválida.
+
+1. Fundamentos e Rigor na Aquisição de Dados
+
+A configuração precisa dos parâmetros de aquisição é a única defesa contra erros sistemáticos. O analista deve verificar a Linear Range do transdutor (conforme especificações do fabricante e curvas de resposta em frequência) para garantir que a Fmax pretendida não sofra atenuação, especialmente em detecções de alta frequência como engrenamento e estágios iniciais de falha em rolamentos.
+
+* Configuração de Parâmetros de Entrada:
+  * Rotação da Máquina (1X): A frequência fundamental deve ser validada via tacômetro ou Key-Phasor para garantir a precisão das ordens.
+  * Taxa de Aquisição e Critério de Nyquist: A amostragem deve ser obrigatoriamente superior a 2x a Fmax. O uso de filtros anti-aliasing de hardware é mandatório para evitar que energias de alta frequência se "mascarem" como sinais sub-síncronos falsos.
+  * Resolução Espectral: O número de linhas de resolução deve ser otimizado em função da Fmax para permitir a separação de picos adjacentes e a identificação clara de bandas laterais (Sidebands).
+* Processamento de Sinal (Janelamento):
+  * Hanning Window: É a janela padrão para sinais contínuos, oferecendo o melhor equilíbrio entre seletividade de frequência e proteção contra o leakage.
+  * Flat Top Window: Validação obrigatória quando a precisão da amplitude é a prioridade técnica (ex: testes de aceitação).
+  * Rectangular Window: Restrita a sinais transientes que se iniciam e terminam dentro do registro de tempo (Time Record).
+
+2. Unidades, Convenções e Aplicações Típicas
+
+O padrão normativo (ISO 10816) e a convenção industrial ditam as unidades de engenharia para cada zona de frequência:
+
+Parâmetro	Unidade	Convenção	Aplicação Típica
+Deslocamento	mils / microns	Pk-Pk	Baixas frequências; Mancais de deslizamento; Órbitas.
+Velocidade	in/s / mm/s	Peak	Severidade global; Falhas mecânicas (1X, 2X, 3X).
+Aceleração	g's / m/s^2	RMS	Altas frequências; Rolamentos; Engrenamento; Cavitação.
+
+3. Diagnóstico de Forças Síncronas: Desbalanceamento e Desalinhamento
+
+O analista deve reconhecer que forças centrífugas de desbalanceamento aumentam proporcionalmente ao quadrado do RPM, tornando-as críticas em máquinas de alta velocidade.
+
+* Desbalanceamento (Imbalance): Manifesta-se pela dominância absoluta de 1X na direção radial.
+  * Estático: Fase idêntica em ambos os mancais do rotor.
+  * De Acoplamento (Couple): Diferença de fase de 180° entre os mancais.
+  * Dinâmico: Requer obrigatoriamente correção em dois planos.
+* Desalinhamento (Misalignment):
+  * Angular: Predominância de 1X e 2X na direção axial. A validação cruzada deve mostrar uma diferença de fase de 180° através do acoplamento.
+  * Paralelo: Dominância de 2X na direção radial, frequentemente acompanhada de harmônicos superiores (3X, 4X) se severo. Gera cargas cíclicas que reduzem drasticamente a vida útil dos mancais.
+
+4. Patologias Estruturais e de Contato
+
+A diferenciação entre folgas e problemas de contato é vital para a determinação da causa raiz.
+
+* Folgas Mecânicas (Looseness):
+  * Estrutural (Tipo A): Geralmente causada por bases frouxas ou Soft Foot. Manifesta-se como 1X vertical elevado.
+  * Móvel/Mancal (Tipo B/C): Caracterizada por uma "floresta de harmônicos" síncronos (1X até 10X) e, em casos severos, ruído de impacto na forma de onda.
+* Roçamento de Rotor (Rotor Rub): Gera um espectro rico em harmônicos e, distintamente, frequências sub-harmônicas (1/2X, 1/3X). O sintoma confirmatório é o Raised Noise Floor (elevação do piso de ruído) devido ao truncamento da forma de onda e calor gerado pelo contato.
+
+5. Falhas de Rolamento e Instabilidades Fluodinâmicas
+
+O desgaste em mancais de rolamento evolui através de frequências não-síncronas (Asynchronous), enquanto mancais de deslizamento são sujeitos a instabilidades de filme de óleo.
+
+* Mancais de Rolamento: O diagnóstico deve rastrear as frequências BPFO (pista externa), BPFI (pista interna), BSF (elementos rolantes) e FTF (gaiola). O surgimento de Sidebands é o indicador inequívoco de modulação e severidade avançada.
+* Oil Whirl: Instabilidade em mancais de deslizamento manifestada na faixa de 0.40X a 0.49X da rotação. É uma condição crítica de pré-falha.
+* Oil Whip: Ocorre quando a frequência de whirl coincide e "trava" em uma frequência natural (Critical Speed) do sistema. É um fenômeno de ressonância autoexcitada que pode levar à destruição catastrófica em segundos.
+
+6. Matriz de Decisão Estratégica e Verificação Final
+
+O diagnóstico final exige a integração multivariável: Espectro + Fase + Forma de Onda.
+
+Sintoma Espectral	Fase / Forma de Onda	Causa Provável	Ação Recomendada
+1X Radial Dominante	Estável / Senoidal	Desbalanceamento	Balanceamento em campo/bancada.
+1X e 2X Axiais	180° de defasagem axial	Desalinhamento Angular	Alinhamento a laser.
+2X Radial Dominante	180° radial (acoplamento)	Desalinhamento Paralelo	Alinhamento e correção de tensões.
+Harmônicos 1X-10X	Impactos aleatórios	Folga Mecânica	Apertos, fixação e inspeção de ajustes.
+0.43X Sub-síncrona	Órbita circular	Oil Whirl	Ajuste de carga ou viscosidade do óleo.
+Sub-harmônicos / Piso Elevado	Forma de onda truncada	Rotor Rub	Inspeção de selos e folgas internas.
+Freq. Não-Síncronas	Impactos repetitivos	Desgaste de Rolamento	Substituição planejada; Análise de lubrificação.
+Ruído de alta freq. (Manso)	Piso de ruído elevado	Cavitação	Ajuste de processo/NPSH.
+"Ski-Slope" (Baixa Freq.)	Sinal instável	Erro de Sensor / Térmico	Validar fixação e integridade do cabo.
+
+Conclusão Técnica: O papel do analista Nível IV é transcender a identificação do defeito e executar a Root Cause Analysis (RCA). Se um espectro indica falha de rolamento, o analista deve determinar se a causa é desalinhamento residual, lubrificação inadequada ou erro de montagem. O diagnóstico via FFT não é um fim em si, mas o meio para garantir a máxima disponibilidade e extensão da vida útil do ativo.

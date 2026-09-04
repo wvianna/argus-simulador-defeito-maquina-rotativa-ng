@@ -1,0 +1,123 @@
+Plano de Diretrizes Tecnológicas: Estratégia de Persistência Seletiva e Geração de Sinais Vibracionais Sintéticos
+
+1. Fundamentação Estratégica e Metrológica da Aquisição
+
+A integridade do dado primário constitui o pilar fundamental da engenharia de confiabilidade moderna. Como analista de Nível IV (ISO 18436), estabeleço que a captura da vibração mecânica não é meramente uma etapa técnica, mas uma salvaguarda estratégica contra falhas catastróficas. A configuração rigorosa dos parâmetros de aquisição e a verificação da Linear Range do transdutor — respeitando as curvas de resposta em frequência do fabricante para evitar atenuações em altas frequências — representam a única defesa eficaz contra erros sistemáticos que invalidam o diagnóstico e mascaram falhas incipientes.
+
+Diretrizes de Configuração de Hardware e Unidades
+
+Para assegurar o rigor metrológico e a conformidade com a norma ISO 10816, as seguintes configurações e convenções são mandatórias:
+
+Parâmetro	Unidade de Engenharia	Convenção	Aplicação Típica
+Deslocamento	mils / microns	Pk-Pk	Baixas frequências; Mancais de deslizamento; Órbitas.
+Velocidade	in/s / mm/s	Peak	Severidade global; Falhas mecânicas (1X, 2X, 3X).
+Aceleração	g's / m/s²	RMS	Altas frequências; Rolamentos; Engrenamento; Cavitação.
+
+* Validação de Rotação (1X): A frequência fundamental deve ser validada via tacômetro ou Key-Phasor para garantir a precisão das ordens cinemáticas.
+* Taxa de Nyquist e Filtros: A amostragem deve ser obrigatoriamente superior a 2x a Fmax. O uso de filtros anti-aliasing de hardware é mandatório para impedir que energias de alta frequência mascarem sinais sub-síncronos.
+* Resolução Espectral: O número de linhas deve ser otimizado para permitir a separação de picos adjacentes e a identificação clara de bandas laterais (Sidebands), indicadores críticos de severidade.
+
+Análise de Processamento de Sinal
+
+O processamento via janelamento matemático deve seguir critérios técnicos rígidos para mitigar o leakage espectral:
+
+Tipo de Janela	Critério de Aplicação Técnica	Impacto na Precisão do Sinal
+Hanning	Padrão para sinais contínuos em regime permanente.	Equilíbrio ideal entre seletividade e proteção contra dispersão.
+Flat Top	Obrigatória para testes de aceitação e calibração.	Prioriza a precisão absoluta da amplitude do pico.
+Rectangular	Restrita a sinais transientes (impactos breves).	Aviso: Eficaz apenas se o sinal iniciar e terminar dentro do registro.
+
+A excelência na aquisição física é o que viabiliza uma arquitetura de dados que elimine o passivo de armazenamento sem perda de capacidade diagnóstica.
+
+2. Metodologia de Persistência Inteligente: O Critério R^3
+
+O desafio paradoxal da Indústria 4.0 é a massa de dados brutos que paralisa a tomada de decisão. Em sistemas onde as frequências atingem 5 kHz, a taxa de Nyquist exige fluxos massivos (12,5 kHz a 50 kHz). A estratégia proposta migra do armazenamento indiscriminado para a persistência seletiva, onde a relevância técnica precede a gravação.
+
+O Espaço Vetorial R^3 e Redução de Volume
+
+A inteligência na origem permite a transição estratégica do Domínio do Tempo para o Domínio da Frequência, reduzindo drasticamente o volume de dados ao converter sinais complexos em vetores de picos no espaço tridimensional R^3:
+
+1. Frequência: Identifica a origem cinemática do fenômeno.
+2. Amplitude: Quantifica a severidade do esforço mecânico.
+3. Fase: Provê a correlação temporal indispensável para diagnósticos de desbalanceamento e órbita.
+
+O Algoritmo do Paralelepípedo de Descarte
+
+A escalabilidade industrial é garantida pelo Paralelepípedo de Descarte, uma zona de tolerância tridimensional (F, A, \phi). O algoritmo avalia se o novo pico reside na "vizinhança" estatística da última leitura efetivamente persistida. Se os desvios estiverem dentro desta caixa imaginária, o dado é redundante e descartado, capturando-se apenas transições de estado reais.
+
+Hierarquia de Decisão e a Regra de Ouro
+
+A persistência segue uma ordem lógica rigorosa para evitar o "drift" de dados (onde pequenas variações acumuladas seriam perdidas se comparadas apenas à leitura anterior descartada):
+
+1. Variação de Rotação: Detecta mudanças no regime operacional (carga/rampa).
+2. Número de Picos: Identifica o surgimento de novas componentes espectrais.
+3. Verificação R^3: Aplica a zona de tolerância contra a última referência armazenada.
+
+Regra de Ouro: O armazenamento deve ocorrer se |Rotação_{Atual} - Rotação_{Armazenada}| > Limiar E houver picos detectados; caso contrário, aplica-se o filtro do paralelepípedo. Esta lógica é o que viabiliza a escalabilidade industrial.
+
+3. Catálogo Técnico de Anomalias e Assinaturas Espectrais
+
+O analista Nível IV deve transcender a detecção de sintomas para alcançar a Análise de Causa Raiz (RCA), determinando se uma falha de rolamento, por exemplo, advém de lubrificação, montagem ou desalinhamento residual.
+
+Matriz de Diagnóstico de Forças e Patologias
+
+Sintoma Espectral	Fase / Forma de Onda	Causa Provável	Ação Recomendada
+1X Radial Dominante	Estável / Senoidal	Desbalanceamento	Balanceamento (Estático/Dinâmico).
+1X e 2X Axiais	180° defasagem axial	Desalinhamento Angular	Alinhamento a laser.
+2X Radial Dominante	180° radial (acoplamento)	Desalinhamento Paralelo	Correção de tensões e alinhamento.
+Harmônicos 1X-10X	Impactos aleatórios	Folga Mecânica (B ou C)	Inspeção de ajustes e fixações.
+0.43X Sub-síncrona	Órbita circular	Oil Whirl	Ajuste de carga ou viscosidade.
+Lock na Freq. Natural	Ressonância autoexcitada	Oil Whip	Intervenção imediata (Catastrófico).
+Sub-harmônicos (1/2X)	Forma de onda truncada	Rotor Rub (Roçamento)	Inspeção de selos e folgas.
+Freq. Não-Síncronas	Presença de Sidebands	Desgaste de Rolamento	Substituição; análise de lubrificação.
+Piso de ruído elevado	Sinal de alta frequência	Cavitação	Ajuste de processo (NPSH).
+"Ski-Slope"	Sinal instável/DC Bias	Erro de Sensor / Térmico	Validar fixação e integridade do cabo.
+
+Diferenciação de Patologias de Contato
+
+* Folgas Mecânicas: A Tipo A (Estrutural/Soft Foot) foca no 1X vertical. As Tipos B e C geram uma "floresta de harmônicos" e ruído de impacto.
+* Rotor Rub: O indicador confirmatório é o Raised Noise Floor (elevação do piso de ruído) causado pelo truncamento da onda e geração de calor por contato.
+
+4. Arquitetura do Sistema de Simulação e Geração de FFT Artificial
+
+A emulação estratégica de falhas permite testar algoritmos de IA e treinar analistas sem expor ativos críticos a riscos reais.
+
+Especificações do Back-end de Geração
+
+O gerador de sinais deve processar requisitos funcionais específicos para produzir uma saída tecnicamente válida:
+
+* Entradas de Máquina: Rotação (RPM), Tipo de Defeito (conforme catálogo), Severidade e Ruído de Fundo.
+* Entradas de Aquisitor: Taxa de amostragem (Hz) e Número de amostras.
+* Saída de Dados: O sistema deve gerar automaticamente os picos da FFT para o armazenamento trash, simulando o fluxo de descarte.
+
+Diretrizes de Interface Web (Front-end)
+
+A interface deve consolidar a análise visual e a persistência de pesquisa:
+
+* Painel Visual: Exibição do sinal simulado de acelerômetro e valor de RMS.
+* Gráfico de FFT: Visualização com barras verticais (frequências normais) e uma linha horizontal de Threshold (limiar de alarme).
+* Snapshot de Defeito: Funcionalidade de gravação em banco de dados que registre obrigatoriamente o par sensor + anomalia correspondente para fins de treinamento e pesquisa de RCA.
+* Indicação da carga de processamento: O sistema deve exibir o tempo de processamento e a taxa de descarte, permitindo ajustes de performance.
+* Checklist de Validação: O front-end deve incluir uma lista de verificação para garantir que todos os parâmetros de entrada estejam corretos antes da simulação.
+
+5. Governança, Armazenamento e Justificativa Econômica
+
+A infraestrutura de dados é um ativo financeiro. Para maximizar o ROI, adota-se uma arquitetura de armazenamento não normalizada com o uso de vetores e offsets, garantindo integridade e velocidade de ingestão em alta frequência, ainda que a consulta posterior exija maior complexidade algorítmica.
+
+Protocolo de Persistência em Banco de Dados
+
+Para suportar tendências multicritério, o sistema deve persistir, além dos picos R^3:
+
+* Energia do Sinal: RMS Total, RMS do Ruído e RMS dos Picos.
+* Sensores de Proximidade: Valor DC (gap/deslocamento).
+* Metadados Operacionais: Níveis de alerta/shutdown ativos, Rotação nominal e Timestamp original.
+* Rotação da máquina, para permitir a reconstrução do espectro completo em caso de necessidade de análise detalhada.
+* Timestamp de aquisição, para rastreabilidade e auditoria.
+
+Checklist de Implementação
+
+* [ ] Configuração de Aquisição: Definir Hz, amostras, fator de calibração e pulsos/rev.
+* [ ] Gestão de Timeouts: Estabelecer limites para hardware e detecção de rotação.
+* [ ] Hierarquia SGBDR: Estruturar Planta > Área > Máquina > Ponto com IDs únicos.
+* [ ] Calibração de Descarte: Definir os limites do paralelepípedo R^3 (desvios absolutos/relativos).
+
+Conclusão Final: Esta diretriz assegura que o monitoramento foque no que é verdadeiramente crítico. Ao eliminar a redundância através da inteligência na origem, o sistema potencializa a RCA e direciona o capital humano para a prevenção de falhas, otimizando a saúde financeira e operacional da planta.

@@ -1,0 +1,65 @@
+Diretriz Estratégica: Implementação de Armazenamento Seletivo de Dados de Vibração
+
+1. Contextualização e o Desafio da "Massa de Dados" na Manutenção Preditiva
+
+A monitoração de ativos críticos é o pilar fundamental da continuidade operacional em ambientes industriais de alta performance. Contudo, a transição para a indústria digital trouxe um desafio paradoxal: a geração de um volume massivo de dados brutos que, se não gerenciado estrategicamente, paralisa a tomada de decisão financeira e operacional. Devemos ser categóricos: a abordagem tradicional de TI de "armazenar tudo" é fundamentalmente incompatível com o monitoramento de turbomáquinas em escala. O acúmulo indiscriminado de informações sobrecarrega as infraestruturas e transforma o que deveria ser um ativo estratégico em um passivo de armazenamento (storage liability), drenando recursos sem oferecer retorno analítico proporcional.
+
+Tecnicamente, esse problema é exacerbado em sistemas de turbomáquinas, onde as frequências de interesse atingem 5 kHz. Pela Taxa de Amostragem de Nyquist, isso exige um mínimo de 12,5 kHz (12.500 pontos por segundo) para monitoramento básico, podendo chegar a 50 kHz para análises de formato de onda. Multiplicando esse fluxo por centenas de pontos de medição, o resultado é um "aglomerado incontrolável". A solução estratégica não reside no aumento da capacidade física de storage, mas na inteligência da seleção de dados na origem, transicionando para uma metodologia onde a relevância precede a persistência.
+
+2. Fundamentos do Método de Seleção e Compactação Via FFT
+
+Uma infraestrutura de dados eficiente exige a migração do domínio do tempo para o domínio da frequência. Essa transformação é o pilar que permite extrair inteligência do ruído. O processo utiliza Fast Fourier Transforms (FFT) para decompor sinais "in natura", permitindo que o sistema identifique picos de maior amplitude em faixas de frequência específicas. O diferencial estratégico reside no descarte do sinal de tempo redundante em favor de vetores de picos, o que reduz drasticamente o volume de dados sem comprometer a detecção de danos estruturais ou falhas iminentes.
+
+Cada pico identificado é tratado como uma coordenada essencial no espaço tridimensional R^3:
+
+1. Frequência: Define a origem cinemática do fenômeno.
+2. Amplitude: Quantifica a severidade do esforço mecânico.
+3. Fase: Proporciona a correlação temporal necessária para diagnósticos de desbalanceamento.
+
+Esta identificação de picos constitui o primeiro filtro de inteligência para o algoritmo de descarte, assegurando que apenas a essência analítica do sinal seja considerada para armazenamento.
+
+3. Arquitetura do Algoritmo de Descarte: O Paralelepípedo de Descarte
+
+A escalabilidade industrial depende de critérios rigorosos para descartar dados que não agregam valor novo. O conceito central aqui é o Paralelepípedo de Descarte, uma janela tridimensional que estabelece uma zona de tolerância definida no espaço vetorial frequência-amplitude-fase.
+
+O algoritmo avalia se um novo pico capturado reside na "vizinhança" imediata da última leitura armazenada. Se os desvios de frequência, amplitude e fase estiverem dentro dessa caixa imaginária, o dado é considerado redundante e descartado. Essa lógica garante que a base de dados capture apenas as transições de estado e comportamentos estatisticamente distintos do ativo.
+
+Os critérios primários de descarte operam sob a seguinte hierarquia técnica:
+
+Critério	Descrição Técnica	Função Estratégica
+1. Rotação por ponto	Compara a rotação atual com a da última leitura armazenada.	Detecta mudanças no regime operacional (rampas, carga).
+2. Número de picos	Avalia se a quantidade de picos detectados é maior que zero e se houve variação.	Identifica o surgimento de novas componentes vibracionais.
+3. Verificação R^3	Aplica o Paralelepípedo de Descarte (Frequência, Amplitude e Fase).	Filtra picos que permanecem dentro da zona de tolerância estatística.
+
+4. Roteiro Técnico para Implementação em Sistemas de IA
+
+Este roteiro fornece a base lógica para a automação da coleta por modelos de inteligência industrial. O sistema deve operar em um laço contínuo, comparando a leitura corrente sempre contra a última leitura efetivamente persistida (e não necessariamente a leitura anterior descartada), seguindo estas fases:
+
+1. Aquisição: Captura de sinais respeitando limites de engenharia e timeouts de hardware.
+2. Cálculo de FFT e DC: Transformação matemática e extração de bias para sensores de proximidade.
+3. Identificação de Picos e RMS: Localização das coordenadas R^3 e cálculo da energia do sinal.
+4. Descarte (Lógica Condicional): O sistema deve aplicar a regra de ouro: SE |rotação atual - rotação armazenada| > desvio de rotação E (Número de Picos do Ponto) > 0, então o armazenamento deve ser realizado. Caso contrário, procede-se à verificação do Paralelepípedo de Descarte para cada pico.
+5. Armazenamento: Persistência seletiva e veloz dos dados validados.
+
+Checklist de Parâmetros de Configuração
+
+* [ ] Parâmetros de Aquisição: Taxa de amostragem (Hz), número de amostras, fator de calibração e número de pulsos por rotação.
+* [ ] Timeouts: Definição de timeout de hardware de aquisição e de rotação.
+* [ ] Serviço de Armazenamento: Endereço do SGBDR, nome do banco de dados e identificador da montagem.
+* [ ] Cálculo de Picos: Intervalo mínimo entre leituras e limites de frequência (superior/inferior).
+* [ ] Janela de Descarte: Valores de desvio absoluto ou relativo para a zona de tolerância R^3.
+
+A organização deve observar a hierarquia estrutural (Planta -> Área -> Máquina -> Ponto) para viabilizar análises de tendências multicritério.
+
+5. Justificativa Financeira e Recuperação de Sinais Críticos
+
+O Retorno sobre Investimento (ROI) da manutenção preditiva está diretamente ligado à agilidade na detecção de falhas. Para maximizar essa performance, esta diretriz recomenda uma arquitetura de armazenamento não normalizada. O uso de vetores e offsets permite que a escrita de dados ocorra em altíssima velocidade. Trata-se de uma decisão arquitetural consciente: sacrifica-se a conveniência imediata da consulta (retrieval) — que se torna ligeiramente mais complexa — em favor da integridade total da ingestão de dados em regime de alta frequência.
+
+A associação dos dados vibracionais aos dados de produtividade (eventos de rampa, ligar/desligar) permite que a gestão financeira correlacione o desgaste de ativos a eventos operacionais reais. Para assegurar a robustez da análise de tendências, além dos picos, as seguintes métricas devem ser obrigatoriamente persistidas:
+
+* RMS total, RMS do ruído e RMS dos picos.
+* Deslocamento (valor DC para sensores de deslocamento).
+* Níveis de alerta e shutdown configurados no momento da leitura.
+* Rotação por ponto e data/hora original da leitura.
+
+A implementação desta diretriz garante uma infraestrutura de dados ágil, escalável e focada na detecção precoce de anomalias, eliminando o ruído sistêmico e focando o capital humano na análise do que é verdadeiramente crítico para a planta.
