@@ -222,19 +222,33 @@ docker compose down -v         # remove também o volume (apaga os dados)
 
 Painel web do simulador (imagens em `docs/imagens/`).
 
+Formulário de simulação (configura parâmetros e envia para a API):
+
 ![Dashboard — formulário de simulação](docs/imagens/dashboard-formulario.png)
 
 ### Exemplos de assinaturas espectrais
 
+Desbalanceamento estático — 1X dominante + harmônicos pares
+
 ![Desbalanceamento — 1X dominante](docs/imagens/dashboard_desbalanceamento.png)
+
+Desalinhamento angular — 2X dominante + harmônicos pares
 
 ![Desalinhamento angular](docs/imagens/dashboard_desalinhamento_angular.png)
 
+Desalinhamento paralelo — 2X dominante + harmônicos pares
+
 ![Desalinhamento paralelo — 2X dominante + harmônicos pares](docs/imagens/dashboard_desalinhamento_paralelo.png)
+
+Instabilidade do filme de óleo (oil whip) — 1X dominante + harmônicos ímpares
 
 ![Instabilidade do filme de óleo (oil whirl)](docs/imagens/dashboard_instabilidade_fime_oleo.png)
 
+Mancal frouxo — família de harmônicos (BPFI, BPFO, BSF, FTF)
+
 ![Mancal frouxo — família de harmônicos](docs/imagens/dashboard_mancal_frouxo.png)
+
+
 
 ![Dashboard — resultado completo: sinal, espectro FFT (rolamento BPFI) e telemetria](docs/imagens/dashboard-simulacao.png)
 
