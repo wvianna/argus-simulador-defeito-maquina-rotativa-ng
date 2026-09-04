@@ -37,7 +37,11 @@ export function PainelSimulacao() {
     }
   }
 
-  const thresholdEstimado = resultado ? resultado.rms_total * 3 : 0;
+  // Limiar de alarme (placeholder do MVP): 80% da maior amplitude dos picos,
+  // para a linha de threshold ficar dentro da escala visível do gráfico de FFT.
+  const thresholdEstimado = resultado
+    ? Math.max(...resultado.picos_r3.map((p) => p.amplitude), 0) * 0.8
+    : 0;
 
   return (
     <main>

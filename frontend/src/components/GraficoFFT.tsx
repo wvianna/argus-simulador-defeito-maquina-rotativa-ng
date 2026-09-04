@@ -16,18 +16,24 @@ export function GraficoFFT({ picos, threshold }: GraficoFFTProps) {
       amplitude: pico.amplitude,
     }));
 
+  const maxAmplitude = Math.max(0, ...dados.map((d) => d.amplitude));
+  // Garante que a linha de threshold (limiar de alarme) fique dentro do eixo Y,
+  // mesmo quando o maior pico for menor que o threshold.
+  const limiteY = Math.max(maxAmplitude, threshold) * 1.15 || 1;
+
   return (
     <div aria-label="grafico-fft" style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer>
-        <BarChart data={dados}>
+        <BarChart data={dados} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="frequencia" label={{ value: "Frequência (Hz)", position: "insideBottom", offset: -5 }} />
-          <YAxis label={{ value: "Amplitude", angle: -90, position: "insideLeft" }} />
+          <YAxis domain={[0, limiteY]} label={{ value: "Amplitude", angle: -90, position: "insideLeft" }} />
           <Tooltip />
-          <Bar dataKey="amplitude" fill="#2563eb" />
-          <ReferenceLine y={threshold} stroke="red" strokeDasharray="4 4" label="Threshold" />
+          <Bar dataKey="amplitude" fill="#2563eb" barSize={28} />
+          <ReferenceLine y={threshold} stroke="red" strokeDasharray="4 4" label="Limiar" />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
