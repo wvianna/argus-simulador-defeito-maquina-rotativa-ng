@@ -1,22 +1,19 @@
 // Tipos que espelham o contrato de POST /simulacoes e /snapshots (ver design.md)
 
 export const TIPOS_DEFEITO = [
-  "desbalanceamento_estatico",
-  "desbalanceamento_acoplamento",
-  "desbalanceamento_dinamico",
+  "sem_defeito",
+  "desbalanceamento",
   "desalinhamento_angular",
   "desalinhamento_paralelo",
-  "folga_tipo_a",
-  "folga_tipo_b_c",
+  "rocamento",
+  "mancal_frouxo",
+  "acoplamento_defeituoso",
   "oil_whirl",
-  "oil_whip",
-  "rotor_rub",
-  "desgaste_rolamento_bpfo",
-  "desgaste_rolamento_bpfi",
-  "desgaste_rolamento_bsf",
-  "desgaste_rolamento_ftf",
-  "cavitacao",
-  "erro_sensor",
+  "whirl_atrito",
+  "rolamento_bpfo",
+  "rolamento_bpfi",
+  "rolamento_bsf",
+  "rolamento_ftf",
 ] as const;
 
 export type TipoDefeito = (typeof TIPOS_DEFEITO)[number];

@@ -36,7 +36,7 @@ Ver diagrama de estados em `.specs/codebase/ARCHITECTURE.md`. Resumo textual:
 {
   "ponto_id": "uuid",
   "rpm": 1780,
-  "tipo_defeito": "desbalanceamento_estatico",
+  "tipo_defeito": "desbalanceamento",
   "severidade": 0.6,
   "ruido_fundo": 0.05,
   "taxa_amostragem_hz": 25600,
@@ -45,7 +45,7 @@ Ver diagrama de estados em `.specs/codebase/ARCHITECTURE.md`. Resumo textual:
 }
 ```
 
-`tipo_defeito` deve ser um dos valores do catálogo em `SPECIFICATION.md` (ex.: `desbalanceamento_estatico`, `desbalanceamento_acoplamento`, `desbalanceamento_dinamico`, `desalinhamento_angular`, `desalinhamento_paralelo`, `folga_tipo_a`, `folga_tipo_b_c`, `oil_whirl`, `oil_whip`, `rotor_rub`, `desgaste_rolamento_bpfo`, `desgaste_rolamento_bpfi`, `desgaste_rolamento_bsf`, `desgaste_rolamento_ftf`, `cavitacao`, `erro_sensor`).
+`tipo_defeito` deve ser um dos valores do catálogo em `SPECIFICATION.md` (ex.: `sem_defeito`, `desbalanceamento`, `desalinhamento_angular`, `desalinhamento_paralelo`, `rocamento`, `mancal_frouxo`, `acoplamento_defeituoso`, `oil_whirl`, `whirl_atrito`, `rolamento_bpfo`, `rolamento_bpfi`, `rolamento_bsf`, `rolamento_ftf`).
 
 **Resposta `200`**:
 
@@ -89,7 +89,7 @@ Ver diagrama de estados em `.specs/codebase/ARCHITECTURE.md`. Resumo textual:
 {
   "leitura_id": "uuid",
   "sensor_id": "string",
-  "tipo_defeito": "desbalanceamento_estatico"
+  "tipo_defeito": "desbalanceamento"
 }
 ```
 

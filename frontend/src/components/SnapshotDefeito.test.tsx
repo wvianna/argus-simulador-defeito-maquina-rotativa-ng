@@ -22,7 +22,7 @@ describe("SnapshotDefeito", () => {
   it("dispara a chamada de snapshot com os dados corretos (CA-009)", async () => {
     const user = userEvent.setup();
     render(
-      <SnapshotDefeito leituraId="leitura-1" leituraTipo="persistida" tipoDefeito="desbalanceamento_estatico" />,
+      <SnapshotDefeito leituraId="leitura-1" leituraTipo="persistida" tipoDefeito="desbalanceamento" />,
     );
 
     await user.type(screen.getByLabelText(/Sensor/), "SENSOR-01");
@@ -37,7 +37,7 @@ describe("SnapshotDefeito", () => {
           leitura_id: "leitura-1",
           leitura_tipo: "persistida",
           sensor_id: "SENSOR-01",
-          tipo_defeito: "desbalanceamento_estatico",
+          tipo_defeito: "desbalanceamento",
         }),
       }),
     );

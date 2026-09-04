@@ -42,15 +42,27 @@ Eventos: `simulação iniciada`, `sinal gerado`, `fft calculada`, `picos extraí
 
 ## Catálogo de tipos de defeito (entrada válida para "Tipo de Defeito")
 
-| Categoria | Defeitos suportados |
+Os valores abaixo seguem as assinaturas espectrais de `docs/assinaturas_fft_falhas_maquinas_rotativas_IA.md`.
+
+| Tipo (`tipo_defeito`) | Assinatura dominante |
 |---|---|
-| Desbalanceamento | Estático, de acoplamento (couple), dinâmico |
-| Desalinhamento | Angular, paralelo |
-| Folga mecânica | Estrutural/Soft Foot (Tipo A), mancal/móvel (Tipo B/C) |
-| Instabilidade fluodinâmica | Oil Whirl (0,40X–0,49X), Oil Whip (lock em frequência natural) |
-| Contato/roçamento | Rotor Rub (roçamento de rotor) |
-| Desgaste de rolamento | BPFO, BPFI, BSF, FTF (com sidebands) |
-| Outros | Cavitação, erro de sensor/térmico ("ski-slope") |
+| `sem_defeito` | 1X residual baixo, sem sequência forte de harmônicos |
+| `desbalanceamento` | 1X dominante |
+| `desalinhamento_angular` | 2X + 1X, com 3X e fracionários 1,5X/2,5X |
+| `desalinhamento_paralelo` | 2X dominante + harmônicos pares 4X/6X/8X |
+| `rocamento` | 1X + série de harmônicos; sub-harmônicos (0,5X, 1/3X, 2/3X) quando severo |
+| `mancal_frouxo` | família de harmônicos 1X–10X + fracionários |
+| `acoplamento_defeituoso` | 1X/2X + 3X/4X |
+| `oil_whirl` | subsíncrona 0,39X–0,48X (razão amostrada) + 1X |
+| `whirl_atrito` | subsíncrona não universal (faixa paramétrica, hipotética) |
+| `rolamento_bpfo` | BPFO + harmônicos ± sidebands 1X |
+| `rolamento_bpfi` | BPFI + harmônicos ± sidebands 1X |
+| `rolamento_bsf` | BSF + harmônicos |
+| `rolamento_ftf` | FTF + harmônicos |
+
+> As frequências de rolamento (BPFO/BPFI/BSF/FTF) são calculadas a partir da
+> geometria padrão do rolamento (ver `signal_generator.py`); a geometria real deve
+> ser fornecida para uso em campo.
 
 ## Requisitos funcionais
 

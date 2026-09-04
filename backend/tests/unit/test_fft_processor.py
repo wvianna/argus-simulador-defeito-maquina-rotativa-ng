@@ -76,10 +76,12 @@ def test_validar_nyquist_aceita_taxa_suficiente() -> None:
 
 
 def test_estimar_fmax_usa_ordem_maxima_do_perfil() -> None:
-    # A ordem do perfil (5.4) é menor que ORDEM_MAXIMA_PADRAO (10.0), que atua como piso mínimo.
-    fmax = fp.estimar_fmax_hz(rpm=1800.0, tipo_defeito="desgaste_rolamento_bpfi")
+    from app.domain import signal_generator as sg
+
+    fmax = fp.estimar_fmax_hz(rpm=1800.0, tipo_defeito="rolamento_bpfi")
     freq_rotacao_hz = 1800.0 / 60.0
-    assert fmax == pytest.approx(fp.ORDEM_MAXIMA_PADRAO * fp.MARGEM_SIDEBAND * freq_rotacao_hz)
+    ordem_max = max(c.ordem for c in sg.DEFECT_PROFILES["rolamento_bpfi"])
+    assert fmax == pytest.approx(ordem_max * fp.MARGEM_SIDEBAND * freq_rotacao_hz)
 
 
 def test_decimar_sinal_mantem_sinal_curto_intacto() -> None:

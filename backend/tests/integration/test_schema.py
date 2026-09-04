@@ -87,7 +87,7 @@ async def test_schema_permite_inserir_snapshot_defeito(
         leitura_id=leitura.id,
         leitura_tipo="persistida",
         sensor_id="SENSOR-01",
-        tipo_defeito="desbalanceamento_estatico",
+        tipo_defeito="desbalanceamento",
     )
     db_session.add(snapshot)
     await db_session.commit()

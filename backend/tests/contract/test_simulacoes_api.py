@@ -12,7 +12,7 @@ def _payload_valido(ponto_id: str) -> dict:
     return {
         "ponto_id": ponto_id,
         "rpm": 1780,
-        "tipo_defeito": "desbalanceamento_estatico",
+        "tipo_defeito": "desbalanceamento",
         "severidade": 0.6,
         "ruido_fundo": 0.05,
         "taxa_amostragem_hz": 25600,
