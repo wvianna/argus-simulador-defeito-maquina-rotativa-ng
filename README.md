@@ -203,7 +203,7 @@ docker compose down -v         # remove também o volume (apaga os dados)
 
 ```text
 .
-├── docs/                         # Documentos de origem (critérios de armazenamento e de determinação de anomalia)
+├── docs/                         # Documentos de origem + capturas do dashboard (docs/imagens/)
 ├── .specs/                       # Especificação técnica detalhada (SDD)
 │   ├── project/                  # Constituição e roadmap do projeto
 │   ├── codebase/                 # Stack, arquitetura, convenções e testes
@@ -217,6 +217,26 @@ docker compose down -v         # remove também o volume (apaga os dados)
 ├── STATUS.md                     # Estado atual do desenvolvimento
 └── HANDOFF.md                    # Transferência de contexto entre agentes
 ```
+
+## Capturas de tela (dashboard)
+
+Painel web do simulador (imagens em `docs/imagens/`).
+
+![Dashboard — formulário de simulação](docs/imagens/dashboard-formulario.png)
+
+### Exemplos de assinaturas espectrais
+
+![Desbalanceamento — 1X dominante](docs/imagens/dashboard_desbalanceamento.png)
+
+![Desalinhamento angular](docs/imagens/dashboard_desalinhamento_angular.png)
+
+![Desalinhamento paralelo — 2X dominante + harmônicos pares](docs/imagens/dashboard_desalinhamento_paralelo.png)
+
+![Instabilidade do filme de óleo (oil whirl)](docs/imagens/dashboard_instabilidade_fime_oleo.png)
+
+![Mancal frouxo — família de harmônicos](docs/imagens/dashboard_mancal_frouxo.png)
+
+![Dashboard — resultado completo: sinal, espectro FFT (rolamento BPFI) e telemetria](docs/imagens/dashboard-simulacao.png)
 
 ## Documentação técnica
 
